@@ -9,7 +9,7 @@ namespace BeatTogether.Configuration
         public static PluginConfiguration Instance { get; set; }
 
         public virtual bool Enabled { get; set; } = true;
-        public virtual string HostName { get; set; } = "127.0.0.1";
+        public virtual string HostName { get; set; } = "btogether.xn--9o8hpe.ws";
         public virtual int Port { get; set; } = 2328;
 
         public virtual void OnReload()
