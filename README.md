@@ -10,6 +10,6 @@ A multiplayer private server for the modding community. Supports crossplay betwe
 
 ## Custom Song Support
 
-**For playing customs with a Quest user, they must manually install the matching beatmap you want to play with them prior to a session. So alert them to doing so before starting a play with these players.**
+**To play a custom song with a Quest user, they must manually install the custom map prior to a session. Be sure to alert them of this before starting a game.**
 
 For PC players, doing customs is simple! Just go to the install instructions for the MultiplayerExtensions plugin and put it inside your Beat Saber Plugins folder. You can view these instructions by clicking [here](https://github.com/Zingabopp/MultiplayerExtensions#installation).
