@@ -1,7 +1,7 @@
 ﻿{
   "$schema": "https://raw.githubusercontent.com/bsmg/BSIPA-MetadataFileSchema/master/Schema.json",
   "id": "BeatTogether",
-  "name": "Beat Together",
+  "name": "BeatTogether",
   "author": "Python",
   "version": "0.2.0",
   "description": "A multiplayer private server for the modding community. Supports crossplay between PC and Quest.",
