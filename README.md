@@ -1,6 +1,8 @@
 # BeatTogether
 A multiplayer private server for the modding community. Supports crossplay between PC and Quest. **This is the PC Plugin.**
 
+Feel free to join our Discord! https://discord.com/invite/gezGrFG4tz (Support, Coordinating games with friends, etc) 
+
 ## Features
 * Private server free from Beat Saber official; allowing Quest to play freely on modded installs
 * Crossplay between all compatible platforms
