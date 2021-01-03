@@ -3,6 +3,8 @@ A multiplayer private server for the modding community. Supports crossplay betwe
 
 Feel free to join our Discord! https://discord.com/invite/gezGrFG4tz (Support, Coordinating games with friends, etc) 
 
+Want to support development and server costs? [Click Here](https://www.patreon.com/BeatTogether)
+
 ## Features
 * Private server free from Beat Saber official; allowing Quest to play freely on modded installs
 * Crossplay between all compatible platforms
