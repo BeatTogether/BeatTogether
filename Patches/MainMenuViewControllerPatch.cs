@@ -13,7 +13,7 @@ namespace BeatTogether.Patches
             var onlineButton = transform.Find("MainButtons/OnlineButton").gameObject;
             var onlineButtonTextObj = onlineButton.transform.Find("Text").gameObject;
             onlineButtonTextObj.transform.position = new Vector3(
-                onlineButtonTextObj.transform.position.x + 0.025f,
+                0.43744f,
                 onlineButtonTextObj.transform.position.y,
                 onlineButtonTextObj.transform.position.z
             );
