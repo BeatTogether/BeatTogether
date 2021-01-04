@@ -13,6 +13,7 @@ Want to support development and server costs? [Click Here](https://www.patreon.c
 ## Installation
 
 To install, Download the latest mod from our releases. [Click Here](https://github.com/pythonology/BeatTogether/releases)
+
 After downloading, extract the .zip to your main game folder. (Steam/steamapps/common/Beat Saber Or Oculus\Software\Software\hyperbolic-magnetism-beat-saber\)
 
 ## Custom Song Support
