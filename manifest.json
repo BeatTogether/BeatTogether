@@ -3,7 +3,7 @@
   "id": "BeatTogether",
   "name": "BeatTogether",
   "author": "Python",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "A multiplayer private server for the modding community. Supports crossplay between PC and Quest.",
   "gameVersion": "1.13.0",
   "dependsOn": {
