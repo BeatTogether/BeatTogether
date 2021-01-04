@@ -13,8 +13,8 @@ Want to support development and server costs? [Click Here](https://www.patreon.c
 ## Installation
 
 To install, Download the latest mod from our releases. [Click Here](https://github.com/pythonology/BeatTogether/releases)
-
-After downloading, extract the .zip to your main game folder. (Steam/steamapps/common/Beat Saber Or Oculus\Software\Software\hyperbolic-magnetism-beat-saber\)
+Extract the zip file to your Beat Saber game directory (the one `Beat Saber.exe` is in).
+   * The `MultiplayerExtensions.dll` (and `MultiplayerExtensions.pdb` if it exists) should end up in your `Plugins` folder (**NOT** the one in `Beat Saber_Data`).
 
 ## Custom Song Support
 
