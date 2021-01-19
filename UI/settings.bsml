@@ -1,0 +1,3 @@
+﻿<settings-container>
+  <checkbox-setting text='Enable BeatTogether' value='enabled' hover-hint='Enables or disables BeatTogether. This allows you to play on the official BeatSaber servers.'></checkbox-setting>
+</settings-container>
