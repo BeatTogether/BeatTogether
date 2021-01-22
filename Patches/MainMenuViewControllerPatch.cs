@@ -9,7 +9,7 @@ namespace BeatTogether.Patches
     {
         internal static bool Prefix(MainMenuViewController __instance, bool firstActivation)
         {
-            if (!firstActivation)
+            if (!Plugin.Configuration.Enabled || !firstActivation)
                 return true;
 
             var transform = __instance.gameObject.transform;

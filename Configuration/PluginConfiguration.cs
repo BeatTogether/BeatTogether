@@ -9,6 +9,7 @@ namespace BeatTogether.Configuration
         public static PluginConfiguration Instance { get; set; }
 
         public virtual bool Enabled { get; set; } = true;
+        public virtual string StatusUrl { get; set; } = "http://btogether.xn--9o8hpe.ws/status";
         public virtual string HostName { get; set; } = "btogether.xn--9o8hpe.ws";
         public virtual int Port { get; set; } = 2328;
 
@@ -23,6 +24,7 @@ namespace BeatTogether.Configuration
         public virtual void CopyFrom(PluginConfiguration other)
         {
             Enabled = other.Enabled;
+            StatusUrl = other.StatusUrl;
             HostName = other.HostName;
             Port = other.Port;
         }

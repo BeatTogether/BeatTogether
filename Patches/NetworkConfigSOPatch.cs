@@ -2,6 +2,20 @@
 
 namespace BeatTogether.Patches
 {
+    [HarmonyPatch(typeof(NetworkConfigSO), "masterServerStatusUrl", MethodType.Getter)]
+    internal class GetMasterServerStatusUrlPatch
+    {
+        internal static bool Prefix(ref string __result)
+        {
+            if (!Plugin.Configuration.Enabled)
+                return true;
+
+            __result = Plugin.Configuration.StatusUrl;
+            Plugin.Logger.Info($"Patching master server status URL (URL='{__result}').");
+            return false;
+        }
+    }
+
     [HarmonyPatch(typeof(NetworkConfigSO), "masterServerEndPoint", MethodType.Getter)]
     internal class GetMasterServerEndPointPatch
     {
