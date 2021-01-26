@@ -7,11 +7,16 @@ namespace BeatTogether.Patches
     {
         internal static void Postfix(ref string __result)
         {
-            if (Plugin.Configuration.Enabled)
+            var server = Plugin.ServerProvider.Selection;
+            if (server.IsOfficial)
             {
-                __result = Plugin.Configuration.StatusUrl;
-                Plugin.Logger.Info($"Patching master server status URL (URL='{__result}').");
+                Plugin.Logger.Debug("Playing on official servers.");
+                return;
             }
+
+            // TODO: add server specific url here
+            __result = Plugin.Configuration.StatusUrl;
+            Plugin.Logger.Info($"Patching master server status URL (URL='{__result}').");
         }
     }
 
@@ -20,11 +25,15 @@ namespace BeatTogether.Patches
     {
         internal static void Postfix(ref MasterServerEndPoint __result)
         {
-            if (Plugin.Configuration.Enabled)
+            var server = Plugin.ServerProvider.Selection;
+            if (server.IsOfficial)
             {
-                __result = new MasterServerEndPoint(Plugin.Configuration.HostName, Plugin.Configuration.Port);
-                Plugin.Logger.Debug($"Patching master server end point (EndPoint='{__result}').");
+                Plugin.Logger.Debug("Playing on official servers.");
+                return;
             }
+
+            __result = server.EndPoint;
+            Plugin.Logger.Debug($"Patching master server end point (EndPoint='{__result}').");
         }
     }
 }

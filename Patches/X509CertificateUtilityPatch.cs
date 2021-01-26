@@ -7,7 +7,8 @@ namespace BeatTogether.Patches
     {
         internal static bool Prefix()
         {
-            if (!Plugin.Configuration.Enabled)
+            var server = Plugin.ServerProvider.Selection;
+            if (server.IsOfficial)
                 return true;
 
             // It'd be best if we do certificate validation here...

@@ -8,6 +8,7 @@ using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
 using IPALogger = IPA.Logging.Logger;
+using BeatTogether.Model;
 
 namespace BeatTogether
 {
@@ -19,10 +20,10 @@ namespace BeatTogether
         internal static Harmony Harmony { get; private set; }
         internal static PluginConfiguration Configuration { get; private set; }
         internal static IPALogger Logger { get; private set; }
+        internal static MasterServerProvider ServerProvider { get; set; }
         [OnStart]
         public void OnApplicationStart()
         {
-            BSMLSettings.instance.AddSettingsMenu("BeatTogether", "BeatTogether.UI.settings.bsml", BeatTogetherSettings.instance);
         }
 
         [Init]
@@ -33,6 +34,7 @@ namespace BeatTogether
             Harmony = new Harmony(_harmonyId);
             Configuration = config.Generated<PluginConfiguration>();
             Logger = logger;
+            ServerProvider = new MasterServerProvider(Configuration.Servers, Configuration.SelectedSever);
         }
 
         [OnEnable]
@@ -42,11 +44,5 @@ namespace BeatTogether
         [OnDisable]
         public void OnDisable()
             => Harmony.UnpatchAll(_harmonyId);
-        public static bool IsEnabled()
-            => Configuration.Enabled;
-        public static void SetEnabled(bool value)
-        {
-            Configuration.Enabled = value;
-        }
     }
 }
