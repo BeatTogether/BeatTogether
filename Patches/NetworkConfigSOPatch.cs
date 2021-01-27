@@ -32,7 +32,7 @@ namespace BeatTogether.Patches
                 return;
             }
 
-            __result = server.EndPoint;
+            __result = server.GetEndPoint();
             Plugin.Logger.Debug($"Patching master server end point (EndPoint='{__result}').");
         }
     }

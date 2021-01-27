@@ -30,6 +30,7 @@ namespace BeatTogether.UI
 
             UpdateUI(_multiplayerView, details);
         }
+
         #region private
         private void UpdateUI(MultiplayerModeSelectionViewController multiplayerView, ServerDetails details)
         {
