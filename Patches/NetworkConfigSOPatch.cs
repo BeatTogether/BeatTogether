@@ -5,6 +5,7 @@ namespace BeatTogether.Patches
     [HarmonyPatch(typeof(NetworkConfigSO), "masterServerStatusUrl", MethodType.Getter)]
     internal class GetMasterServerStatusUrlPatch
     {
+        [HarmonyBefore("mod.serverbrowser")]
         internal static void Postfix(ref string __result)
         {
             var server = Plugin.ServerProvider.Selection;
@@ -22,6 +23,7 @@ namespace BeatTogether.Patches
     [HarmonyPatch(typeof(NetworkConfigSO), "masterServerEndPoint", MethodType.Getter)]
     internal class GetMasterServerEndPointPatch
     {
+        [HarmonyBefore("mod.serverbrowser")]
         internal static void Postfix(ref MasterServerEndPoint __result)
         {
             var server = Plugin.ServerProvider.Selection;
