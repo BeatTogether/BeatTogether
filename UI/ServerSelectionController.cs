@@ -47,6 +47,9 @@ namespace BeatTogether.UI
                 return;
             }
             quickPlayButton.SetActive(details.IsOfficial);
+
+            var status = Plugin.StatusProvider.GetStatus(details);
+            multiplayerView.SetData(status);
         }
 
         private INetworkConfig GetNetworkConfig()

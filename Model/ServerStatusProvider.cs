@@ -20,5 +20,11 @@ namespace BeatTogether.Model
             ServerStatus.Remove(key);
             ServerStatus.Add(key, value);
         }
+
+        internal MasterServerAvailabilityData GetStatus(ServerDetails details)
+        {
+            ServerStatus.TryGetValue(details.ServerId, out MasterServerAvailabilityData result);
+            return result;
+        }
     }
 }
