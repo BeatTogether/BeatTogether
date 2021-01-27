@@ -24,7 +24,7 @@ namespace BeatTogether.UI
         {
             ServerDetails details = selection as ServerDetails;
             Plugin.Logger.Info($"Server selection has changed to {details.ServerName} ({details.ServerId})");
-            Plugin.Configuration.SelectedSever = details.ServerId;
+            Plugin.Configuration.SelectedServer = details.ServerId;
             Plugin.ServerProvider.Selection = details;
 
             UpdateUI(_multiplayerView, details);

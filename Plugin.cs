@@ -34,7 +34,7 @@ namespace BeatTogether
             Harmony = new Harmony(_harmonyId);
             Configuration = config.Generated<PluginConfiguration>();
             Logger = logger;
-            ServerProvider = new MasterServerProvider(Configuration.Servers, Configuration.SelectedSever);
+            ServerProvider = new MasterServerProvider(Configuration.Servers, Configuration.SelectedServer);
         }
 
         [OnEnable]

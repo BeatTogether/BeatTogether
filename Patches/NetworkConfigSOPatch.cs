@@ -14,8 +14,7 @@ namespace BeatTogether.Patches
                 return;
             }
 
-            // TODO: add server specific url here
-            __result = Plugin.Configuration.StatusUrl;
+            __result = server.StatusUri;
             Plugin.Logger.Info($"Patching master server status URL (URL='{__result}').");
         }
     }
