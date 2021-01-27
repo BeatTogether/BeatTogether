@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HarmonyLib;
 using UnityEngine;
+using BeatTogether.Model;
 
 namespace BeatTogether.Patches
 {
@@ -17,6 +18,7 @@ namespace BeatTogether.Patches
         {
             Plugin.Logger.Warn($"Faking server availability data.");
             __result = Task<MasterServerAvailabilityData>.Run(() => {
+                (new ServerStatusFetcher(Plugin.ServerProvider.Servers, Plugin.StatusProvider)).FetchAll();
                 return JsonUtility.FromJson<MasterServerAvailabilityData>(FAKE_RESPONSE_TEMPLATE);
             });
         }

@@ -140,6 +140,8 @@
   <ItemGroup>
     <Compile Include="Configuration\ServerDetails.cs" />
     <Compile Include="Model\MasterServerProvider.cs" />
+    <Compile Include="Model\ServerStatusFetcher.cs" />
+    <Compile Include="Model\ServerStatusProvider.cs" />
     <Compile Include="Patches\MainMenuViewControllerPatch.cs" />
     <Compile Include="Patches\MasterServerAvailabilityModelPatch.cs" />
     <Compile Include="Patches\MultiplayerModeSelectionViewControllerPatch.cs" />
