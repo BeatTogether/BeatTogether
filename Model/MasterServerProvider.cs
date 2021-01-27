@@ -9,7 +9,6 @@ namespace BeatTogether.Model
 {
     internal class MasterServerProvider
     {
-        private readonly static string OFFICIAL_SERVERS = "Official Servers";
         public List<ServerDetails> Servers { get; private set; }
         public ServerDetails Selection { get; set; }
 
@@ -17,10 +16,7 @@ namespace BeatTogether.Model
         {
             List<ServerDetails> servers = new List<ServerDetails>();
 
-            Selection = new ServerDetails()
-            {
-                ServerName = OFFICIAL_SERVERS
-            };
+            Selection = ServerDetails.CreateOfficialInstance();
             servers.Add(Selection);
 
             foreach (var server in endpoints)

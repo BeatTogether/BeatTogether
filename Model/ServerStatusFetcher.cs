@@ -25,19 +25,27 @@ namespace BeatTogether.Model
 
         public async void FetchAll()
         {
-            var result = await Task.WhenAll<MasterServerAvailabilityData>(_serverDetails
+            var result = await Task.WhenAll<KeyValuePair<string, MasterServerAvailabilityData>>(_serverDetails
                 .Where(server => server.StatusUri != null)
                 .Select(server => FetchSingle(server)));
+
+            foreach ((var key, var value) in result)
+            {
+                _provider.SetServerStatus(key, value);
+            }
         }
 
         #region private
-        private async Task<MasterServerAvailabilityData> FetchSingle(ServerDetails server)
+        private async Task<KeyValuePair<string, MasterServerAvailabilityData>> FetchSingle(ServerDetails server)
         {
             var url = server.StatusUri;
             Plugin.Logger.Info($"Fetching status for {server.ServerId} from {url}");
             HttpClient httpClient = new HttpClient();
             httpClient.Timeout = TimeSpan.FromSeconds(30.0);
-            return JsonUtility.FromJson<MasterServerAvailabilityData>(await httpClient.GetStringAsync(url));
+            return new KeyValuePair<string, MasterServerAvailabilityData>(
+                server.ServerId,
+                JsonUtility.FromJson<MasterServerAvailabilityData>(await httpClient.GetStringAsync(url))
+            );
         }
         #endregion
     }

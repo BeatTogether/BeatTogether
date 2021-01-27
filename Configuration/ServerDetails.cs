@@ -8,8 +8,10 @@ namespace BeatTogether.Configuration
 {
     internal class ServerDetails
     {
-        private readonly static int DEFAULT_PORT = 2328;
-        private static readonly string OFFICIAL_SERVER_ID = null;
+        public readonly static int DEFAULT_PORT = 2328;
+        public readonly static string OFFICIAL_SERVER_NAME = "Official Servers";
+        public readonly static string OFFICIAL_SERVER_ID = "steam.production.mp.beatsaber.com:2328";
+
         private MasterServerEndPoint _endPoint;
 
         public string ServerName { get; set; }
@@ -17,7 +19,6 @@ namespace BeatTogether.Configuration
         public int Port { get; set; } = DEFAULT_PORT;
         public string StatusUri { get; set; }
         public string ServerId { get; set; }
-
         public bool IsOfficial { get => ServerId == OFFICIAL_SERVER_ID; }
 
         public override string ToString()
@@ -43,6 +44,15 @@ namespace BeatTogether.Configuration
         public bool Is(string serverId)
         {
             return serverId == ServerId;
+        }
+
+        internal static ServerDetails CreateOfficialInstance()
+        {
+            return new ServerDetails()
+            {
+                ServerName = OFFICIAL_SERVER_NAME,
+                ServerId = OFFICIAL_SERVER_ID
+            };
         }
     }
 }

@@ -7,7 +7,6 @@ using IPA.Utilities;
 using BeatSaberMarkupLanguage.Components.Settings;
 using BeatSaberMarkupLanguage.Parser;
 using BeatTogether.Configuration;
-using Zenject;
 
 namespace BeatTogether.UI
 {
@@ -30,8 +29,8 @@ namespace BeatTogether.UI
 
             // keep this code, as it informs MPEX over the change:
             var networkConfig = GetNetworkConfig();
-            var address = networkConfig.masterServerEndPoint.ToString();
-            var status = networkConfig.masterServerStatusUrl.ToString();
+            var address = networkConfig.masterServerEndPoint;
+            var status = networkConfig.masterServerStatusUrl;
             Plugin.Logger.Info($"Server selection has changed to {details.ServerName} (endpoint={address}, status={status})");
 
             UpdateUI(_multiplayerView, details);

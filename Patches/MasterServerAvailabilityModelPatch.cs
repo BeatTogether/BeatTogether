@@ -12,14 +12,16 @@ namespace BeatTogether.Patches
     [HarmonyPatch(typeof(MasterServerAvailabilityModel), "GetAvailabilityAsyncInternal")]
     class GetAvailabilityAsyncInternalPatch
     {
-        private static readonly string FAKE_RESPONSE_TEMPLATE = "{\"minimumAppVersion\":\"1.13.0\",\"status\":0,\"maintenanceStartTime\":0,\"maintenanceEndTime\":0,\"userMessage\":{\"localizedMessages\":[]}}";
-
         internal static void Postfix(ref Task<MasterServerAvailabilityData> __result)
         {
             Plugin.Logger.Warn($"Faking server availability data.");
             __result = Task<MasterServerAvailabilityData>.Run(() => {
                 (new ServerStatusFetcher(Plugin.ServerProvider.Servers, Plugin.StatusProvider)).FetchAll();
-                return JsonUtility.FromJson<MasterServerAvailabilityData>(FAKE_RESPONSE_TEMPLATE);
+                return new MasterServerAvailabilityData()
+                {
+                    minimumAppVersion = Application.version,
+                    status = MasterServerAvailabilityData.AvailabilityStatus.Online
+                };
             });
         }
     }

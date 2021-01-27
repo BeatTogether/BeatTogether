@@ -9,11 +9,16 @@ namespace BeatTogether.Model
 {
     internal class ServerStatusProvider
     {
-        private List<ServerDetails> servers;
         public Dictionary<string, MasterServerAvailabilityData> ServerStatus { get; } = new Dictionary<string, MasterServerAvailabilityData>();
 
         public ServerStatusProvider(List<ServerDetails> servers)
         {
+        }
+
+        internal void SetServerStatus(string key, MasterServerAvailabilityData value)
+        {
+            ServerStatus.Remove(key);
+            ServerStatus.Add(key, value);
         }
     }
 }
