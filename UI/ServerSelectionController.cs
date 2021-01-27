@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.Components.Settings;
-using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Parser;
-using BeatTogether.Model;
+using BeatTogether.Configuration;
 
 namespace BeatTogether.UI
 {

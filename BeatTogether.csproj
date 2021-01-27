@@ -133,6 +133,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\ServerDetails.cs" />
     <Compile Include="Model\MasterServerProvider.cs" />
     <Compile Include="Patches\MainMenuViewControllerPatch.cs" />
     <Compile Include="Patches\MultiplayerModeSelectionViewControllerPatch.cs" />
