@@ -11,7 +11,6 @@ namespace BeatTogether.Patches
             var server = Plugin.ServerProvider.Selection;
             if (server.IsOfficial)
             {
-                Plugin.Logger.Debug("Playing on official servers.");
                 return;
             }
 
@@ -29,7 +28,6 @@ namespace BeatTogether.Patches
             var server = Plugin.ServerProvider.Selection;
             if (server.IsOfficial)
             {
-                Plugin.Logger.Debug("Playing on official servers.");
                 return;
             }
 

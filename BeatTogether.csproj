@@ -105,6 +105,11 @@
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.JSONSerializeModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <Private>False</Private>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.JSONSerializeModule.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
@@ -136,6 +141,7 @@
     <Compile Include="Configuration\ServerDetails.cs" />
     <Compile Include="Model\MasterServerProvider.cs" />
     <Compile Include="Patches\MainMenuViewControllerPatch.cs" />
+    <Compile Include="Patches\MasterServerAvailabilityModelPatch.cs" />
     <Compile Include="Patches\MultiplayerModeSelectionViewControllerPatch.cs" />
     <Compile Include="Patches\NetworkConfigSOPatch.cs" />
     <Compile Include="Patches\X509CertificateUtilityPatch.cs" />
