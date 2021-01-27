@@ -12,6 +12,8 @@ namespace BeatTogether.Configuration
         public readonly static string OFFICIAL_SERVER_NAME = "Official Servers";
         public readonly static string OFFICIAL_SERVER_ID = "steam.production.mp.beatsaber.com:2328";
 
+        public static string OfficialStatusUri { set; get; }
+
         private MasterServerEndPoint _endPoint;
 
         public string ServerName { get; set; }
@@ -51,7 +53,8 @@ namespace BeatTogether.Configuration
             return new ServerDetails()
             {
                 ServerName = OFFICIAL_SERVER_NAME,
-                ServerId = OFFICIAL_SERVER_ID
+                ServerId = OFFICIAL_SERVER_ID,
+                StatusUri = OfficialStatusUri
             };
         }
     }

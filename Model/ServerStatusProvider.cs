@@ -11,7 +11,7 @@ namespace BeatTogether.Model
     {
         public Dictionary<string, MasterServerAvailabilityData> ServerStatus { get; } = new Dictionary<string, MasterServerAvailabilityData>();
 
-        public ServerStatusProvider(List<ServerDetails> servers)
+        public ServerStatusProvider()
         {
         }
 

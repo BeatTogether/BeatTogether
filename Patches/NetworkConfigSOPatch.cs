@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using BeatTogether.Configuration;
 
 namespace BeatTogether.Patches
 {
@@ -8,6 +9,8 @@ namespace BeatTogether.Patches
         [HarmonyBefore("mod.serverbrowser")]
         internal static void Postfix(ref string __result)
         {
+            ServerDetails.OfficialStatusUri = __result;
+
             var server = Plugin.ServerProvider.Selection;
             if (server.IsOfficial)
             {

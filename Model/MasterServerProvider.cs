@@ -9,11 +9,26 @@ namespace BeatTogether.Model
 {
     internal class MasterServerProvider
     {
+        private static MasterServerProvider _instance;
         public List<ServerDetails> Servers { get; private set; }
         public ServerDetails Selection { get; set; }
 
-        public MasterServerProvider(List<ServerDetails> endpoints, string selected)
+        public static MasterServerProvider Instance
+        { 
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new MasterServerProvider();
+                }
+                return _instance;
+            }
+        }
+
+        private MasterServerProvider()
         {
+            var endpoints = Plugin.Configuration.Servers;
+            var selected = Plugin.Configuration.SelectedServer;
             List<ServerDetails> servers = new List<ServerDetails>();
 
             Selection = ServerDetails.CreateOfficialInstance();

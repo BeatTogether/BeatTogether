@@ -21,7 +21,7 @@ namespace BeatTogether
         internal static Harmony Harmony { get; private set; }
         internal static PluginConfiguration Configuration { get; private set; }
         internal static IPALogger Logger { get; private set; }
-        internal static MasterServerProvider ServerProvider { get; private set; }
+        internal static MasterServerProvider ServerProvider { get => MasterServerProvider.Instance; }
         internal static ServerStatusProvider StatusProvider { get; private set; }
         [OnStart]
         public void OnApplicationStart()
@@ -36,8 +36,7 @@ namespace BeatTogether
             Harmony = new Harmony(_harmonyId);
             Configuration = config.Generated<PluginConfiguration>();
             Logger = logger;
-            ServerProvider = new MasterServerProvider(Configuration.Servers, Configuration.SelectedServer);
-            StatusProvider = new ServerStatusProvider(ServerProvider.Servers);
+            StatusProvider = new ServerStatusProvider();
         }
 
         [OnEnable]

@@ -42,9 +42,11 @@ namespace BeatTogether.Model
             Plugin.Logger.Info($"Fetching status for {server.ServerId} from {url}");
             HttpClient httpClient = new HttpClient();
             httpClient.Timeout = TimeSpan.FromSeconds(30.0);
+
+            var response = await httpClient.GetStringAsync(url);
             return new KeyValuePair<string, MasterServerAvailabilityData>(
                 server.ServerId,
-                JsonUtility.FromJson<MasterServerAvailabilityData>(await httpClient.GetStringAsync(url))
+                JsonUtility.FromJson<MasterServerAvailabilityData>(response)
             );
         }
         #endregion
