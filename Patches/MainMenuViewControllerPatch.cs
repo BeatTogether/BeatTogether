@@ -1,5 +1,4 @@
-﻿using System;
-using HarmonyLib;
+﻿using HarmonyLib;
 using TMPro;
 using UnityEngine;
 
@@ -10,15 +9,11 @@ namespace BeatTogether.Patches
     {
         internal static Vector3 DefaultTextPosition { get; set; }
         internal static string DefaultText { get; set; }
-        static DidActivatePatch()
-        {
-        }
+
         internal static void Postfix(MainMenuViewController __instance, bool firstActivation)
         {
             if (!firstActivation)
-            {
                 return;
-            }
 
             var transform = __instance.gameObject.transform;
             var onlineButton = transform.Find("MainButtons/OnlineButton").gameObject;

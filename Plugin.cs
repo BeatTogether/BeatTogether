@@ -1,14 +1,11 @@
-﻿using System;
-using System.Reflection;
-using BeatSaberMarkupLanguage.Settings;
+﻿using System.Reflection;
 using BeatTogether.Configuration;
-using BeatTogether.UI;
+using BeatTogether.Providers;
 using HarmonyLib;
 using IPA;
 using IPA.Config;
 using IPA.Config.Stores;
 using IPALogger = IPA.Logging.Logger;
-using BeatTogether.Model;
 
 namespace BeatTogether
 {
@@ -16,13 +13,13 @@ namespace BeatTogether
     [Plugin(RuntimeOptions.SingleStartInit)]
     public class Plugin
     {
-        // TODO: a lot of static stuff here. should be refactored. ;o)
         private const string _harmonyId = "com.Python.BeatTogether";
         internal static Harmony Harmony { get; private set; }
         internal static PluginConfiguration Configuration { get; private set; }
         internal static IPALogger Logger { get; private set; }
-        internal static MasterServerProvider ServerProvider { get => MasterServerProvider.Instance; }
+        internal static ServerDetailProvider ServerDetailProvider { get => ServerDetailProvider.Instance; }
         internal static ServerStatusProvider StatusProvider { get; private set; }
+
         [OnStart]
         public void OnApplicationStart()
         {

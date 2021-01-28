@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using BeatTogether.Providers;
 using HarmonyLib;
 using UnityEngine;
-using BeatTogether.Model;
 
 namespace BeatTogether.Patches
 {
@@ -14,14 +10,12 @@ namespace BeatTogether.Patches
     {
         internal static void Postfix(ref Task<MasterServerAvailabilityData> __result)
         {
-            Plugin.Logger.Warn($"Faking server availability data.");
-            __result = Task<MasterServerAvailabilityData>.Run(() => {
-                (new ServerStatusFetcher(Plugin.ServerProvider.Servers, Plugin.StatusProvider)).FetchAll();
-                return new MasterServerAvailabilityData()
-                {
-                    minimumAppVersion = Application.version,
-                    status = MasterServerAvailabilityData.AvailabilityStatus.Online
-                };
+            var serverStatusFetcher = new ServerStatusFetcher(Plugin.ServerDetailProvider.Servers, Plugin.StatusProvider);
+            _ = serverStatusFetcher.FetchAll();
+            __result = Task.FromResult(new MasterServerAvailabilityData()
+            {
+                minimumAppVersion = Application.version,
+                status = MasterServerAvailabilityData.AvailabilityStatus.Online
             });
         }
     }

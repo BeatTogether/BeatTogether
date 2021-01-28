@@ -1,5 +1,5 @@
-﻿using HarmonyLib;
-using BeatTogether.Configuration;
+﻿using BeatTogether.Models;
+using HarmonyLib;
 
 namespace BeatTogether.Patches
 {
@@ -11,14 +11,12 @@ namespace BeatTogether.Patches
         {
             ServerDetails.OfficialStatusUri = __result;
 
-            var server = Plugin.ServerProvider.Selection;
+            var server = Plugin.ServerDetailProvider.Selection;
             if (server.IsOfficial)
-            {
                 return;
-            }
 
             __result = server.StatusUri;
-            Plugin.Logger.Info($"Patching master server status URL (URL='{__result}').");
+            Plugin.Logger.Debug($"Patching master server status URL (URL='{__result}').");
         }
     }
 
@@ -28,11 +26,9 @@ namespace BeatTogether.Patches
         [HarmonyBefore("mod.serverbrowser")]
         internal static void Postfix(ref MasterServerEndPoint __result)
         {
-            var server = Plugin.ServerProvider.Selection;
+            var server = Plugin.ServerDetailProvider.Selection;
             if (server.IsOfficial)
-            {
                 return;
-            }
 
             __result = server.GetEndPoint();
             Plugin.Logger.Debug($"Patching master server end point (EndPoint='{__result}').");

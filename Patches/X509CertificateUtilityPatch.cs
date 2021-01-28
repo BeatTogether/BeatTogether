@@ -7,7 +7,7 @@ namespace BeatTogether.Patches
     {
         internal static bool Prefix()
         {
-            var server = Plugin.ServerProvider.Selection;
+            var server = Plugin.ServerDetailProvider.Selection;
             if (server.IsOfficial)
                 return true;
 

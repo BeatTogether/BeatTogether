@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BeatSaberMarkupLanguage.Components;
+﻿using System.Linq;
 using BeatSaberMarkupLanguage.Components.Settings;
-using Polyglot;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using BeatTogether.Model;
 
 namespace BeatTogether.UI
 {
-    public class UiFactory
+    public class UIFactory
     {
         internal static ListSetting CreateServerSelectionView(MultiplayerModeSelectionViewController multiplayerView)
         {

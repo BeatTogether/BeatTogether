@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Net.Http;
-using IPA.Utilities;
-using BeatTogether.Configuration;
+using System.Threading.Tasks;
+using BeatTogether.Models;
 using UnityEngine;
 
-namespace BeatTogether.Model
+namespace BeatTogether.Providers
 {
     internal class ServerStatusFetcher
     {
         private readonly List<ServerDetails> _serverDetails;
-
         private readonly ServerStatusProvider _provider;
 
         public ServerStatusFetcher(List<ServerDetails> servers, ServerStatusProvider provider)
@@ -23,46 +19,44 @@ namespace BeatTogether.Model
             _provider = provider;
         }
 
-        public async void FetchAll()
+        public async Task FetchAll()
         {
-            var result = await Task.WhenAll<KeyValuePair<string, MasterServerAvailabilityData>>(_serverDetails
-                .Where(server => server.StatusUri != null)
-                .Select(server => FetchSingle(server)));
+            var result = await Task.WhenAll(
+                _serverDetails
+                    .Where(server => server.StatusUri != null)
+                    .Select(server => FetchSingle(server))
+            );
 
-            foreach ((var key, var value) in result.Where(x => x.Value != null))
-            {
-                _provider.SetServerStatus(key, value);
-            }
+            foreach (var kvp in result.Where(kvp => kvp.Value != null))
+                _provider.SetServerStatus(kvp.Key, kvp.Value);
         }
 
-        #region private
+        #region Private Methods
+
         private async Task<KeyValuePair<string, MasterServerAvailabilityData>> FetchSingle(ServerDetails server)
         {
             var url = server.StatusUri;
-            Plugin.Logger.Info($"Fetching status for {server.ServerId} from {url}");
-            HttpClient httpClient = new HttpClient();
+            Plugin.Logger.Debug($"Fetching status for '{server.ServerId}' from '{url}'.");
+            var httpClient = new HttpClient();
             httpClient.Timeout = TimeSpan.FromSeconds(30.0);
 
             try
             {
                 var response = await httpClient.GetStringAsync(url);
-                Plugin.Logger.Debug($"Fetching status from {url} done.");
+                Plugin.Logger.Debug($"Finished fetching status for '{server.ServerId}' from '{url}'.");
 
                 return new KeyValuePair<string, MasterServerAvailabilityData>(
                     server.ServerId,
                     JsonUtility.FromJson<MasterServerAvailabilityData>(response)
                 );
             }
-            catch (HttpRequestException e)
+            catch (Exception e)
             {
-                Plugin.Logger.Warn($"Request for {server.ServerId} failed. {e.Message}");
-            }
-            catch (InvalidOperationException e)
-            {
-                Plugin.Logger.Error($"Request for {server.ServerId} failed. {e.Message}");
+                Plugin.Logger.Warn($"Failed to fetch status for '{server.ServerId}' from '{url}'. {e.Message}");
             }
             return new KeyValuePair<string, MasterServerAvailabilityData>(server.ServerId, null);
         }
+
         #endregion
     }
 }

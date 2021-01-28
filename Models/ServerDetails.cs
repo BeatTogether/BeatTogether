@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BeatTogether.Configuration
+﻿namespace BeatTogether.Models
 {
     internal class ServerDetails
     {
@@ -31,31 +25,20 @@ namespace BeatTogether.Configuration
         public MasterServerEndPoint GetEndPoint()
         {
             if (ServerId == OFFICIAL_SERVER_ID)
-            {
                 return null;
-            }
-
             if (_endPoint == null)
-            {
                 _endPoint = new MasterServerEndPoint(HostName, Port);
-            }
-
             return _endPoint;
         }
 
-        public bool Is(string serverId)
-        {
-            return serverId == ServerId;
-        }
+        public bool Is(string serverId) => ServerId == serverId;
 
-        internal static ServerDetails CreateOfficialInstance()
-        {
-            return new ServerDetails()
+        internal static ServerDetails CreateOfficialInstance() =>
+            new ServerDetails
             {
                 ServerName = OFFICIAL_SERVER_NAME,
                 ServerId = OFFICIAL_SERVER_ID,
                 StatusUri = OfficialStatusUri
             };
-        }
     }
 }

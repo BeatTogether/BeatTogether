@@ -1,14 +1,7 @@
-﻿using System;
-using System.Linq;
-using HarmonyLib;
-using IPA.Utilities;
-using TMPro;
-using UnityEngine;
-using UnityEngine.UI;
-using BeatSaberMarkupLanguage.Components.Settings;
-using BeatSaberMarkupLanguage.Tags.Settings;
+﻿using System.Linq;
+using BeatTogether.Providers;
 using BeatTogether.UI;
-using BeatTogether.Model;
+using HarmonyLib;
 
 namespace BeatTogether.Patches
 {
@@ -28,11 +21,11 @@ namespace BeatTogether.Patches
 
         private static void AddServerSelection(MultiplayerModeSelectionViewController __instance)
         {
-            var servers = Plugin.ServerProvider.Servers;
-            var serverSelection = UiFactory.CreateServerSelectionView(__instance);
+            var servers = Plugin.ServerDetailProvider.Servers;
+            var serverSelection = UIFactory.CreateServerSelectionView(__instance);
 
             serverSelection.values = servers.ToList<object>();
-            serverSelection.Value = Plugin.ServerProvider.Selection;
+            serverSelection.Value = Plugin.ServerDetailProvider.Selection;
         }
     }
 }
