@@ -16,5 +16,7 @@ namespace BeatTogether.Model
         }
 
         public UserMessageHandler UserMessageHandler { get; set; }
+
+        public MultiplayerModeSelectionViewController MultiplayerModeSelectionViewController { get; set; }
     }
 }

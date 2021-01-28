@@ -13,7 +13,7 @@ namespace BeatTogether.Patches
         static DidActivatePatch()
         {
         }
-        internal static void Prefix(MainMenuViewController __instance, bool firstActivation)
+        internal static void Postfix(MainMenuViewController __instance, bool firstActivation)
         {
             if (!firstActivation)
             {

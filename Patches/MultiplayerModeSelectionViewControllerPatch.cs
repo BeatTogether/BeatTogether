@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using BeatSaberMarkupLanguage.Components.Settings;
 using BeatSaberMarkupLanguage.Tags.Settings;
 using BeatTogether.UI;
+using BeatTogether.Model;
 
 namespace BeatTogether.Patches
 {
@@ -20,14 +21,9 @@ namespace BeatTogether.Patches
 
             if (firstActivation)
             {
+                GameClassInstanceProvider.Instance.MultiplayerModeSelectionViewController = __instance;
                 AddServerSelection(__instance);
             }
-
-            /*
-            var customServerEndPointText = transform.Find("CustomServerEndPointText");
-            customServerEndPointText.SetParent(null);
-            MonoBehaviour.Destroy(customServerEndPointText.gameObject);
-            */
         }
 
         private static void AddServerSelection(MultiplayerModeSelectionViewController __instance)
