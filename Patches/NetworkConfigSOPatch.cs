@@ -1,30 +1,41 @@
 ﻿using HarmonyLib;
+using BeatTogether.Configuration;
 
 namespace BeatTogether.Patches
 {
     [HarmonyPatch(typeof(NetworkConfigSO), "masterServerStatusUrl", MethodType.Getter)]
     internal class GetMasterServerStatusUrlPatch
     {
+        [HarmonyBefore("mod.serverbrowser")]
         internal static void Postfix(ref string __result)
         {
-            if (Plugin.Configuration.Enabled)
+            ServerDetails.OfficialStatusUri = __result;
+
+            var server = Plugin.ServerProvider.Selection;
+            if (server.IsOfficial)
             {
-                __result = Plugin.Configuration.StatusUrl;
-                Plugin.Logger.Info($"Patching master server status URL (URL='{__result}').");
+                return;
             }
+
+            __result = server.StatusUri;
+            Plugin.Logger.Info($"Patching master server status URL (URL='{__result}').");
         }
     }
 
     [HarmonyPatch(typeof(NetworkConfigSO), "masterServerEndPoint", MethodType.Getter)]
     internal class GetMasterServerEndPointPatch
     {
+        [HarmonyBefore("mod.serverbrowser")]
         internal static void Postfix(ref MasterServerEndPoint __result)
         {
-            if (Plugin.Configuration.Enabled)
+            var server = Plugin.ServerProvider.Selection;
+            if (server.IsOfficial)
             {
-                __result = new MasterServerEndPoint(Plugin.Configuration.HostName, Plugin.Configuration.Port);
-                Plugin.Logger.Debug($"Patching master server end point (EndPoint='{__result}').");
+                return;
             }
+
+            __result = server.GetEndPoint();
+            Plugin.Logger.Debug($"Patching master server end point (EndPoint='{__result}').");
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using System;
+using HarmonyLib;
 using TMPro;
 using UnityEngine;
 
@@ -7,21 +8,30 @@ namespace BeatTogether.Patches
     [HarmonyPatch(typeof(MainMenuViewController), "DidActivate")]
     internal class DidActivatePatch
     {
-        internal static void Prefix(MainMenuViewController __instance, bool firstActivation)
+        internal static Vector3 DefaultTextPosition { get; set; }
+        internal static string DefaultText { get; set; }
+        static DidActivatePatch()
         {
-            if (Plugin.Configuration.Enabled && firstActivation)
+        }
+        internal static void Postfix(MainMenuViewController __instance, bool firstActivation)
+        {
+            if (!firstActivation)
             {
-                var transform = __instance.gameObject.transform;
-                var onlineButton = transform.Find("MainButtons/OnlineButton").gameObject;
-                var onlineButtonTextObj = onlineButton.transform.Find("Text").gameObject;
-                onlineButtonTextObj.transform.position = new Vector3(
-                    onlineButtonTextObj.transform.position.x + 0.025f,
-                    onlineButtonTextObj.transform.position.y,
-                    onlineButtonTextObj.transform.position.z
-                );
-                var onlineButtonText = onlineButtonTextObj.GetComponent<TextMeshProUGUI>();
-                onlineButtonText.SetText("Modded Online");
+                return;
             }
+
+            var transform = __instance.gameObject.transform;
+            var onlineButton = transform.Find("MainButtons/OnlineButton").gameObject;
+            var onlineButtonTextObj = onlineButton.transform.Find("Text").gameObject;
+            var onlineButtonText = onlineButtonTextObj.GetComponent<TextMeshProUGUI>();
+            DefaultTextPosition = onlineButtonTextObj.transform.position;
+
+            onlineButtonTextObj.transform.position = new Vector3(
+                DefaultTextPosition.x + 0.025f,
+                DefaultTextPosition.y,
+                DefaultTextPosition.z
+            );
+            onlineButtonText.SetText("Modded Online");
         }
     }
 }
