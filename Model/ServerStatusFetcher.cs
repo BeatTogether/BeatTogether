@@ -46,7 +46,7 @@ namespace BeatTogether.Model
             try
             {
                 var response = await httpClient.GetStringAsync(url);
-                Plugin.Logger.Info($"Fetching status from {url} done.");
+                Plugin.Logger.Debug($"Fetching status from {url} done.");
 
                 return new KeyValuePair<string, MasterServerAvailabilityData>(
                     server.ServerId,

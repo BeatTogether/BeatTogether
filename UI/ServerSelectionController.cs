@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 using TMPro;
 using IPA.Utilities;
 using BeatSaberMarkupLanguage.Components.Settings;
 using BeatSaberMarkupLanguage.Parser;
 using BeatTogether.Configuration;
+using BeatTogether.Model;
+using MasterServer;
 
 namespace BeatTogether.UI
 {
@@ -34,12 +37,29 @@ namespace BeatTogether.UI
             var status = networkConfig.masterServerStatusUrl;
             Plugin.Logger.Info($"Server selection has changed to {details.ServerName} (endpoint={address}, status={status})");
 
+            DisconnectServer();
             UpdateUI(_multiplayerView, details);
         }
 
         #region private
+        private void DisconnectServer()
+        {
+            var handler = GameClassInstanceProvider.Instance.UserMessageHandler;
+
+            if (handler == null)
+            {
+                return;
+            }
+
+            Plugin.Logger.Debug("Make sure to unauthenticate from server.");
+            MethodInfo method = typeof(UserMessageHandler)
+                .GetMethod("UnauthenticateWithMasterServer", BindingFlags.Instance | BindingFlags.NonPublic);
+            method.Invoke(handler, new object[] { });
+        }
+
         private void UpdateUI(MultiplayerModeSelectionViewController multiplayerView, ServerDetails details)
         {
+            Plugin.Logger.Debug("UpdateUI");
             var transform = _multiplayerView.transform;
             var quickPlayButton = transform.Find("Buttons/QuickPlayButton").gameObject;
             if (quickPlayButton == null)
