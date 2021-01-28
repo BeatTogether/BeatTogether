@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TMPro;
 using IPA.Utilities;
 using BeatSaberMarkupLanguage.Components.Settings;
 using BeatSaberMarkupLanguage.Parser;
@@ -50,12 +51,47 @@ namespace BeatTogether.UI
 
             var status = Plugin.StatusProvider.GetStatus(details);
             multiplayerView.SetData(status);
+
+            do
+            {
+                var textMesh = GetMaintenanceMessageText();
+                if (textMesh.gameObject.activeSelf)
+                {
+                    textMesh.richText = false;
+                    continue;
+                }
+
+                textMesh.richText = true;
+                if (status == null)
+                {
+                    textMesh.SetText("Status: <color=\"yellow\">UNKNOWN");
+                    textMesh.gameObject.SetActive(true);
+                    continue;
+                }
+
+                switch (status.status)
+                {
+                    case MasterServerAvailabilityData.AvailabilityStatus.Offline:
+                    case MasterServerAvailabilityData.AvailabilityStatus.MaintenanceUpcoming:
+                        textMesh.SetText("Status: <color=\"red\">OFFLINE");
+                        break;
+                    case MasterServerAvailabilityData.AvailabilityStatus.Online:
+                        textMesh.SetText("Status: <color=\"green\">ONLINE");
+                        break;
+                }
+                textMesh.gameObject.SetActive(true);
+            }
+            while (false);
         }
 
         private INetworkConfig GetNetworkConfig()
         {
-            var networkConfig = ReflectionUtil.GetField<INetworkConfig, MultiplayerModeSelectionViewController>(_multiplayerView, "_networkConfig");
-            return networkConfig;
+            return ReflectionUtil.GetField<INetworkConfig, MultiplayerModeSelectionViewController>(_multiplayerView, "_networkConfig");
+        }
+
+        private TextMeshProUGUI GetMaintenanceMessageText()
+        {
+            return ReflectionUtil.GetField<TextMeshProUGUI, MultiplayerModeSelectionViewController>(_multiplayerView, "_maintenanceMessageText");
         }
         #endregion
     }

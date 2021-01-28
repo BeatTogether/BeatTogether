@@ -29,7 +29,7 @@ namespace BeatTogether.Model
                 .Where(server => server.StatusUri != null)
                 .Select(server => FetchSingle(server)));
 
-            foreach ((var key, var value) in result)
+            foreach ((var key, var value) in result.Where(x => x.Value != null))
             {
                 _provider.SetServerStatus(key, value);
             }
@@ -43,11 +43,25 @@ namespace BeatTogether.Model
             HttpClient httpClient = new HttpClient();
             httpClient.Timeout = TimeSpan.FromSeconds(30.0);
 
-            var response = await httpClient.GetStringAsync(url);
-            return new KeyValuePair<string, MasterServerAvailabilityData>(
-                server.ServerId,
-                JsonUtility.FromJson<MasterServerAvailabilityData>(response)
-            );
+            try
+            {
+                var response = await httpClient.GetStringAsync(url);
+                Plugin.Logger.Info($"Fetching status from {url} done.");
+
+                return new KeyValuePair<string, MasterServerAvailabilityData>(
+                    server.ServerId,
+                    JsonUtility.FromJson<MasterServerAvailabilityData>(response)
+                );
+            }
+            catch (HttpRequestException e)
+            {
+                Plugin.Logger.Error($"Request for {server.ServerId} failed. {e.Message}");
+            }
+            catch (InvalidOperationException e)
+            {
+                Plugin.Logger.Error($"Request for {server.ServerId} failed. {e.Message}");
+            }
+            return new KeyValuePair<string, MasterServerAvailabilityData>(server.ServerId, null);
         }
         #endregion
     }
