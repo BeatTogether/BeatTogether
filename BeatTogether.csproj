@@ -147,6 +147,7 @@
     <Compile Include="Plugin.cs" />
     <Compile Include="Configuration\PluginConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\GameEventDispatcher.cs" />
     <Compile Include="UI\ServerSelectionController.cs" />
     <Compile Include="UI\UiFactory.cs" />
   </ItemGroup>

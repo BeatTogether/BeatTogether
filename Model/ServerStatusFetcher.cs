@@ -55,7 +55,7 @@ namespace BeatTogether.Model
             }
             catch (HttpRequestException e)
             {
-                Plugin.Logger.Error($"Request for {server.ServerId} failed. {e.Message}");
+                Plugin.Logger.Warn($"Request for {server.ServerId} failed. {e.Message}");
             }
             catch (InvalidOperationException e)
             {

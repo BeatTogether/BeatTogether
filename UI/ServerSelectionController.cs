@@ -17,12 +17,14 @@ namespace BeatTogether.UI
     internal class ServerSelectionController
     {
         private readonly MultiplayerModeSelectionViewController _multiplayerView;
+
         public ServerSelectionController(ListSetting listSetting, MultiplayerModeSelectionViewController multiplayerView)
         {
             _multiplayerView = multiplayerView;
             BSMLAction changed = new BSMLAction(this, typeof(ServerSelectionController).GetMethod("OnServerChanged"));
             listSetting.onChange = changed;
             UpdateUI(multiplayerView, Plugin.ServerProvider.Selection);
+            GameEventDispatcher.Instance.MultiplayerViewEntered += OnMultiplayerViewEntered;
         }
 
         public void OnServerChanged(object selection)
@@ -64,7 +66,7 @@ namespace BeatTogether.UI
             var quickPlayButton = transform.Find("Buttons/QuickPlayButton").gameObject;
             if (quickPlayButton == null)
             {
-                Plugin.Logger.Error("QuickPlayButton not found");
+                Plugin.Logger.Critical("QuickPlayButton not found");
                 return;
             }
             quickPlayButton.SetActive(details.IsOfficial);
@@ -112,6 +114,12 @@ namespace BeatTogether.UI
         private TextMeshProUGUI GetMaintenanceMessageText()
         {
             return ReflectionUtil.GetField<TextMeshProUGUI, MultiplayerModeSelectionViewController>(_multiplayerView, "_maintenanceMessageText");
+        }
+
+        private void OnMultiplayerViewEntered(object sender, MultiplayerModeSelectionViewController e)
+        {
+            var selection = Plugin.ServerProvider.Selection;
+            UpdateUI(_multiplayerView, selection);
         }
         #endregion
     }

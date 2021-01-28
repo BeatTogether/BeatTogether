@@ -16,6 +16,8 @@ namespace BeatTogether.Patches
     {
         internal static void Postfix(MultiplayerModeSelectionViewController __instance, bool firstActivation)
         {
+            GameEventDispatcher.Instance.OnMultiplayerViewEntered(__instance);
+
             if (firstActivation)
             {
                 AddServerSelection(__instance);
