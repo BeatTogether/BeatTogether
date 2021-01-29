@@ -29,7 +29,7 @@ namespace BeatTogether.UI
         public void OnServerChanged(object selection)
         {
             ServerDetails details = selection as ServerDetails;
-            Plugin.Configuration.SelectedServer = details.ServerId;
+            Plugin.Configuration.SelectedServer = details.ServerName;
             Plugin.ServerDetailProvider.Selection = details;
 
             // Keep this code, as it informs MPEX of the change
@@ -62,7 +62,7 @@ namespace BeatTogether.UI
             var quickPlayButton = transform.Find("Buttons/QuickPlayButton").gameObject;
             quickPlayButton.SetActive(details.IsOfficial);
 
-            var status = Plugin.StatusProvider.GetServerStatus(details.ServerId);
+            var status = Plugin.StatusProvider.GetServerStatus(details.ServerName);
             multiplayerView.SetData(status);
 
             var textMesh = GetMaintenanceMessageText();

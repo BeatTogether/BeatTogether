@@ -11,15 +11,12 @@ namespace BeatTogether.Providers
             _serverStatus = new Dictionary<string, MasterServerAvailabilityData>();
         }
 
-        public void SetServerStatus(string serverId, MasterServerAvailabilityData status)
-        {
-            _serverStatus.Remove(serverId);
-            _serverStatus.Add(serverId, status);
-        }
+        public void SetServerStatus(string serverName, MasterServerAvailabilityData status) =>
+            _serverStatus[serverName] = status;
 
-        public MasterServerAvailabilityData GetServerStatus(string serverId)
+        public MasterServerAvailabilityData GetServerStatus(string serverName)
         {
-            if (_serverStatus.TryGetValue(serverId, out var status))
+            if (_serverStatus.TryGetValue(serverName, out var status))
                 return status;
             return null;
         }

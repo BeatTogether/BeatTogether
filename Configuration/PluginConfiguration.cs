@@ -12,14 +12,13 @@ namespace BeatTogether.Configuration
     {
         public static PluginConfiguration Instance { get; set; }
 
-        public virtual string SelectedServer { get; set; } = "btogether.xn--9o8hpe.ws:2328";
+        public virtual string SelectedServer { get; set; } = "BeatTogether";
 
         [NonNullable, UseConverter(typeof(CollectionConverter<ServerDetails, List<ServerDetails>>))]
         public virtual List<ServerDetails> Servers { get; set; } = new List<ServerDetails>()
         {
             new ServerDetails()
             {
-                ServerId = "btogether.xn--9o8hpe.ws:2328",
                 ServerName = "BeatTogether",
                 HostName = "btogether.xn--9o8hpe.ws",
                 StatusUri = "http://btogether.xn--9o8hpe.ws/status"

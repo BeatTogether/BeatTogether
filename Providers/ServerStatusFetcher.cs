@@ -36,25 +36,25 @@ namespace BeatTogether.Providers
         private async Task<KeyValuePair<string, MasterServerAvailabilityData>> FetchSingle(ServerDetails server)
         {
             var url = server.StatusUri;
-            Plugin.Logger.Debug($"Fetching status for '{server.ServerId}' from '{url}'.");
+            Plugin.Logger.Debug($"Fetching status for '{server.ServerName}' from '{url}'.");
             var httpClient = new HttpClient();
             httpClient.Timeout = TimeSpan.FromSeconds(30.0);
 
             try
             {
                 var response = await httpClient.GetStringAsync(url);
-                Plugin.Logger.Debug($"Finished fetching status for '{server.ServerId}' from '{url}'.");
+                Plugin.Logger.Debug($"Finished fetching status for '{server.ServerName}' from '{url}'.");
 
                 return new KeyValuePair<string, MasterServerAvailabilityData>(
-                    server.ServerId,
+                    server.ServerName,
                     JsonUtility.FromJson<MasterServerAvailabilityData>(response)
                 );
             }
             catch (Exception e)
             {
-                Plugin.Logger.Warn($"Failed to fetch status for '{server.ServerId}' from '{url}'. {e.Message}");
+                Plugin.Logger.Warn($"Failed to fetch status for '{server.ServerName}' from '{url}'. {e.Message}");
             }
-            return new KeyValuePair<string, MasterServerAvailabilityData>(server.ServerId, null);
+            return new KeyValuePair<string, MasterServerAvailabilityData>(server.ServerName, null);
         }
 
         #endregion
