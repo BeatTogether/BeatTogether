@@ -10,6 +10,7 @@ namespace BeatTogether.UI
     {
         internal static ListSetting CreateServerSelectionView(MultiplayerModeSelectionViewController multiplayerView)
         {
+            Plugin.Logger.Info("Applying interface for server selection.");
             var parent = multiplayerView.gameObject.transform;
             FormattedFloatListSettingsValueController baseSetting = MonoBehaviour.Instantiate(Resources.FindObjectsOfTypeAll<FormattedFloatListSettingsValueController>().First(x => (x.name == "VRRenderingScale")), parent, false);
             baseSetting.name = "BSMLIncDecSetting";
@@ -29,7 +30,8 @@ namespace BeatTogether.UI
             (gameObject.transform.GetChild(1) as RectTransform).sizeDelta = new Vector2(60, 0);
             serverSelection.text.overflowMode = TextOverflowModes.Ellipsis;
 
-            new ServerSelectionController(serverSelection, multiplayerView);
+            var controller = multiplayerView.gameObject.AddComponent<ServerSelectionController>();
+            controller.Init(serverSelection, multiplayerView);
 
             TextMeshProUGUI text = gameObject.GetComponentInChildren<TextMeshProUGUI>();
             text.transform.position += new Vector3(1.2f, 0.0f, 0.0f);
