@@ -6,25 +6,28 @@ using BeatTogether.Providers;
 using IPA.Utilities;
 using MasterServer;
 using TMPro;
+using UnityEngine;
 
 namespace BeatTogether.UI
 {
-    internal class ServerSelectionController
+    internal class ServerSelectionController : MonoBehaviour
     {
         private static MethodInfo _unauthenticateWithMasterServerMethodInfo = typeof(UserMessageHandler)
             .GetMethod("UnauthenticateWithMasterServer", BindingFlags.Instance | BindingFlags.NonPublic);
 
-        private readonly MultiplayerModeSelectionViewController _multiplayerView;
+        private MultiplayerModeSelectionViewController _multiplayerView;
 
-        public ServerSelectionController(ListSetting listSetting, MultiplayerModeSelectionViewController multiplayerView)
+        public void Init(ListSetting listSetting, MultiplayerModeSelectionViewController multiplayerView)
         {
             _multiplayerView = multiplayerView;
-
             var changed = new BSMLAction(this, typeof(ServerSelectionController).GetMethod("OnServerChanged"));
             listSetting.onChange = changed;
             UpdateUI(multiplayerView, Plugin.ServerDetailProvider.Selection);
             GameEventDispatcher.Instance.MultiplayerViewEntered += OnMultiplayerViewEntered;
         }
+
+        public void OnDestroy()
+            => GameEventDispatcher.Instance.MultiplayerViewEntered -= OnMultiplayerViewEntered;
 
         public void OnServerChanged(object selection)
         {
@@ -101,10 +104,10 @@ namespace BeatTogether.UI
         private TextMeshProUGUI GetMaintenanceMessageText() =>
             ReflectionUtil.GetField<TextMeshProUGUI, MultiplayerModeSelectionViewController>(_multiplayerView, "_maintenanceMessageText");
 
-        private void OnMultiplayerViewEntered(object sender, MultiplayerModeSelectionViewController e)
+        private void OnMultiplayerViewEntered(object sender, MultiplayerModeSelectionViewController multiplayerView)
         {
             var selection = Plugin.ServerDetailProvider.Selection;
-            UpdateUI(_multiplayerView, selection);
+            UpdateUI(multiplayerView, selection);
         }
 
         #endregion
