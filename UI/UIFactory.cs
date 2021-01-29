@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using BeatSaberMarkupLanguage.Components.Settings;
 using TMPro;
 using UnityEngine;
