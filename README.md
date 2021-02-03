@@ -13,6 +13,12 @@ Want to support development and server costs? [Click Here](https://www.patreon.c
 
 ## Installation
 
+**Recommended Install:**
+
+The easiest way to install is through [ModAssistant](https://github.com/Assistant/ModAssistant)!
+
+**Manual Install:**
+
 To install, Download the latest mod from our releases. [Click Here](https://github.com/pythonology/BeatTogether/releases)
 
 Extract the zip file to your Beat Saber game directory (the one `Beat Saber.exe` is in).
