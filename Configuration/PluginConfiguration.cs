@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using BeatTogether.Models;
 using IPA.Config.Stores;
@@ -12,21 +13,23 @@ namespace BeatTogether.Configuration
     {
         public static PluginConfiguration Instance { get; set; }
 
-        public virtual string SelectedServer { get; set; } = "BeatTogether";
+        public virtual string SelectedServer { get; set; } = ServerDetails.BEAT_TOGETHER_SERVER_NAME;
 
         [NonNullable, UseConverter(typeof(CollectionConverter<ServerDetails, List<ServerDetails>>))]
-        public virtual List<ServerDetails> Servers { get; set; } = new List<ServerDetails>()
-        {
-            new ServerDetails()
-            {
-                ServerName = "BeatTogether",
-                HostName = "btogether.xn--9o8hpe.ws",
-                StatusUri = "http://btogether.xn--9o8hpe.ws/status"
-            }
-        };
+        public virtual List<ServerDetails> Servers { get; set; } = new List<ServerDetails>();
 
         public virtual void OnReload()
         {
+            Servers = Servers
+                .Where(server => server.ServerName != ServerDetails.BEAT_TOGETHER_SERVER_NAME &&
+                                 server.ServerName != ServerDetails.OFFICIAL_SERVER_NAME)
+                .Prepend(new ServerDetails
+                {
+                    ServerName = ServerDetails.BEAT_TOGETHER_SERVER_NAME,
+                    HostName = "master.beattogether.systems",
+                    StatusUri = "http://master.beattogether.systems/status"
+                })
+                .ToList();
         }
 
         public virtual void Changed()

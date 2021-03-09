@@ -3,11 +3,12 @@
   "id": "BeatTogether",
   "name": "BeatTogether",
   "author": "Python",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "A multiplayer private server for the modding community. Supports crossplay between PC and Quest.",
-  "gameVersion": "1.13.2",
+  "gameVersion": "1.13.4",
   "dependsOn": {
-    "BSIPA": "^4.0.0"
+    "BSIPA": "^4.0.0",
+    "BeatSaberMarkupLanguage": "^1.4.0"
   },
   "features": []
 }

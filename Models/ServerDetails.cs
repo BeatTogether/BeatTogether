@@ -3,6 +3,7 @@
     internal class ServerDetails
     {
         public readonly static int DEFAULT_PORT = 2328;
+        public readonly static string BEAT_TOGETHER_SERVER_NAME = "BeatTogether";
         public readonly static string OFFICIAL_SERVER_NAME = "Official Servers";
 
         public static string OfficialStatusUri { set; get; }
