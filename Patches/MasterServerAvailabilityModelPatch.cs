@@ -10,12 +10,15 @@ namespace BeatTogether.Patches
     {
         internal static void Postfix(ref Task<MasterServerAvailabilityData> __result)
         {
-            var serverStatusFetcher = new ServerStatusFetcher(Plugin.ServerDetailProvider.Servers, Plugin.StatusProvider);
-            _ = serverStatusFetcher.FetchAll();
-            __result = Task.FromResult(new MasterServerAvailabilityData()
+            __result = Task.Run(async () =>
             {
-                minimumAppVersion = Application.version,
-                status = MasterServerAvailabilityData.AvailabilityStatus.Online
+                var serverStatusFetcher = new ServerStatusFetcher(Plugin.ServerDetailProvider.Servers, Plugin.StatusProvider);
+                await serverStatusFetcher.FetchAll();
+                return new MasterServerAvailabilityData()
+                {
+                    minimumAppVersion = Application.version,
+                    status = MasterServerAvailabilityData.AvailabilityStatus.Online
+                };
             });
         }
     }

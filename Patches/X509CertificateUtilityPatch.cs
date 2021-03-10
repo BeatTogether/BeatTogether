@@ -1,8 +1,9 @@
 ﻿using HarmonyLib;
+using MasterServer;
 
 namespace BeatTogether.Patches
 {
-    [HarmonyPatch(typeof(X509CertificateUtility), "ValidateCertificateChain")]
+    [HarmonyPatch(typeof(UserMessageHandler), "ValidateCertificateChain")]
     internal class ValidateCertificateChainPatch
     {
         internal static bool Prefix()
