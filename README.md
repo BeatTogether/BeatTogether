@@ -8,7 +8,6 @@ Want to support development and server costs? [Click Here](https://www.patreon.c
 ## Features
 * Private server free from Beat Saber official; allowing Quest to play freely on modded installs
 * Crossplay between all compatible platforms
-* Custom songs between platforms
 * 10 Player lobbies (If you also have [MultiplayerExtensions](https://github.com/Zingabopp/MultiplayerExtensions#installation)) **This Feature is EXPERIMENTAL. For optimial experience its recommended to stick with 5 players.**
 
 ## Installation
@@ -24,7 +23,7 @@ To install, Download the latest mod from our releases. [Click Here](https://gith
 Extract the zip file to your Beat Saber game directory (the one `Beat Saber.exe` is in).
 The `BeatTogether.dll` should end up in your `Plugins` folder (**NOT** the one in `Beat Saber_Data`).
 
-## Custom Song Support
+## How to Play Custom Songs
 
 **To play a custom song with a Quest user, they must manually install the custom map prior to a session. Be sure to alert them of this before starting a game.**
 
