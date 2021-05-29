@@ -139,11 +139,11 @@
     <Compile Include="Providers\ServerDetailProvider.cs" />
     <Compile Include="Providers\ServerStatusFetcher.cs" />
     <Compile Include="Providers\ServerStatusProvider.cs" />
-    <Compile Include="Patches\UserMessageHandlerPatch.cs" />
+    <Compile Include="Patches\MasterServerConnectionManagerPatch.cs" />
     <Compile Include="Patches\MasterServerAvailabilityModelPatch.cs" />
     <Compile Include="Patches\MultiplayerModeSelectionViewControllerPatch.cs" />
     <Compile Include="Patches\NetworkConfigSOPatch.cs" />
-    <Compile Include="Patches\X509CertificateUtilityPatch.cs" />
+    <Compile Include="Patches\UserCertificateValidatorPatch.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Configuration\PluginConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
