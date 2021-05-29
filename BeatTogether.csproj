@@ -139,7 +139,7 @@
     <Compile Include="Providers\ServerDetailProvider.cs" />
     <Compile Include="Providers\ServerStatusFetcher.cs" />
     <Compile Include="Providers\ServerStatusProvider.cs" />
-    <Compile Include="Patches\UserMessageHandlerPatch.cs" />
+    <Compile Include="Patches\MasterServerConnectionManagerPatch.cs" />
     <Compile Include="Patches\MasterServerAvailabilityModelPatch.cs" />
     <Compile Include="Patches\MultiplayerModeSelectionViewControllerPatch.cs" />
     <Compile Include="Patches\NetworkConfigSOPatch.cs" />
