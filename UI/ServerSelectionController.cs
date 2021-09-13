@@ -61,10 +61,6 @@ namespace BeatTogether.UI
 
         private void UpdateUI(MultiplayerModeSelectionViewController multiplayerView, ServerDetails details)
         {
-            var transform = _multiplayerView.transform;
-            var quickPlayButton = transform.Find("Buttons/QuickPlayButton").gameObject;
-            quickPlayButton.SetActive(details.IsOfficial);
-
             var status = Plugin.StatusProvider.GetServerStatus(details.ServerName);
             multiplayerView.SetData(status);
 
