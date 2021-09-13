@@ -8,7 +8,7 @@ Want to support development and server costs? [Click Here](https://www.patreon.c
 ## Features
 * Private server free from Beat Saber official; allowing Quest to play freely on modded installs
 * Crossplay between all compatible platforms
-* 10 Player lobbies (If you also have [MultiplayerExtensions](https://github.com/Zingabopp/MultiplayerExtensions#installation)) **This Feature is EXPERIMENTAL. For optimial experience its recommended to stick with 5 players.**
+* 10 Player lobbies (If you also have [MultiplayerExtensions](https://github.com/Zingabopp/MultiplayerExtensions#installation)) **This Feature is EXPERIMENTAL. For optimal experience its recommended to stick with 5 players.**
 
 ## Installation
 
