@@ -45,6 +45,8 @@ namespace BeatTogether.UI
                 $"(EndPoint={endPoint}, StatusUrl={statusUrl})"
             );
 
+            Patches.QuickPlaySongPacksDropdownPatch.UpdateSongPacks();
+
             DisconnectServer();
             UpdateUI(_multiplayerView, details);
         }
