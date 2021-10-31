@@ -5,16 +5,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using IPA.Loader;
+using BeatTogether.Providers;
 
 namespace BeatTogether.Patches
 {
     [HarmonyPatch(typeof(MasterServerQuickPlaySetupModel), "Init")]
     class MasterServerQuickPlaySetupModelInitPatch
     {
-        public static MasterServerQuickPlaySetupModel instance { get; private set; }
         internal static void Postfix(MasterServerQuickPlaySetupModel __instance)
         {
-            instance = __instance;
+            GameClassInstanceProvider.Instance.MasterServerQuickPlaySetupModel = __instance;
         }
     }
 
@@ -34,10 +34,8 @@ namespace BeatTogether.Patches
     {
         internal static void Postfix(MasterServerQuickPlaySetupModel __instance, ref Task<MasterServerQuickPlaySetupData> __result, ref Task<MasterServerQuickPlaySetupData> ____request)
         {
-            var pluginMetadata = PluginManager.GetPluginFromId("MultiplayerExtensions");
-            if ((pluginMetadata == null || !PluginManager.IsEnabled(pluginMetadata)) && !Plugin.ServerDetailProvider.Selection.IsOfficial)
+            if (ModStatusProvider.ShouldBlockSongPackOverrides)
             {
-                Plugin.Logger.Info("MultiplayerExtensions not installed, returning 'null'");
                 __result = new Task<MasterServerQuickPlaySetupData>(null);
             }
 

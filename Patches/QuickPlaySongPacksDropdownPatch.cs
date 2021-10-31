@@ -5,51 +5,59 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using IPA.Utilities;
-using IPA.Loader;
+using BeatTogether.Providers;
 // TODO: Add some sort of loadingScreen while it checks SongPackOverrides
 namespace BeatTogether.Patches
 {
     [HarmonyPatch(typeof(QuickPlaySongPacksDropdown), "Start")]
     internal class QuickPlaySongPacksDropdownPatch
     {
-        internal static QuickPlaySongPacksDropdown _instance;
-        internal static bool didTaskFail;
+        public enum TaskStateEnum
+        {
+            Unknown, Finished, Running, Failed
+        }
+        public static TaskStateEnum TaskState { get; private set; } = TaskStateEnum.Unknown;
         internal static void Prefix(QuickPlaySongPacksDropdown __instance)
         {
-            _instance = __instance;
+            GameClassInstanceProvider.Instance.QuickPlaySongPacksDropdown = __instance;
         }
 
         public static void UpdateSongPacks()
         {
-            _instance.SetField<QuickPlaySongPacksDropdown, MasterServerQuickPlaySetupData.QuickPlaySongPacksOverride>("_quickPlaySongPacksOverride", null);
-            var pluginMetadata = PluginManager.GetPluginFromId("MultiplayerExtensions");
-            if ((pluginMetadata == null || !PluginManager.IsEnabled(pluginMetadata)) && !Plugin.ServerDetailProvider.Selection.IsOfficial)
+            QuickPlaySongPacksDropdown instance = GameClassInstanceProvider.Instance.QuickPlaySongPacksDropdown;
+            if (instance != null)
+                instance.SetField<QuickPlaySongPacksDropdown, MasterServerQuickPlaySetupData.QuickPlaySongPacksOverride>("_quickPlaySongPacksOverride", null);
+            if (ModStatusProvider.ShouldBlockSongPackOverrides)
             {
                 Plugin.Logger.Info("MultiplayerExtensions not installed, not overriding packs");
                 return;
             }
-
+            TaskState = TaskStateEnum.Running;
             System.Threading.Tasks.Task.Run(async () =>
             {
                 try
                 {
                     Plugin.Logger.Info("Get QuickPlaySongPacksOverride");
-                    var quickPlaySetupData = await MasterServerQuickPlaySetupModelInitPatch.instance.GetQuickPlaySetupAsync(System.Threading.CancellationToken.None);
-                    didTaskFail = false;
+                    var quickPlaySetupData = await GameClassInstanceProvider.Instance.MasterServerQuickPlaySetupModel.GetQuickPlaySetupAsync(System.Threading.CancellationToken.None);
                     return quickPlaySetupData.quickPlayAvailablePacksOverride;
                 }
                 catch (Exception)
                 {
-                    Plugin.Logger.Info("Could not get QuickPlaySongPacksOverride");
-                    didTaskFail = true;
+                    Plugin.Logger.Warn("Could not get QuickPlaySongPacksOverride");
+                    TaskState = TaskStateEnum.Failed;
                     return null;
                 }
             }).ContinueWith(r =>
             {
                 Plugin.Logger.Debug("ContinueWith running for quickplaySongPackOverrides");
-                _instance.SetField("_quickPlaySongPacksOverride", r.Result);
-                _instance.SetField("_initialized", false);
-                //_instance.LazyInit();
+                if (instance != null)
+                {
+                    instance.SetField("_quickPlaySongPacksOverride", r.Result);
+                    instance.SetField("_initialized", false);
+                }
+                if (TaskState == TaskStateEnum.Running) TaskState = TaskStateEnum.Finished;
+                MultiplayerModeSelectionFlowCoordinatorPatch.ShowQuickPlayLobbyScreenIfWaiting();
+                //GameClassInstanceProvider.Instance.QuickPlaySongPacksDropdown.LazyInit();
             }
             );
         }
@@ -60,14 +68,7 @@ namespace BeatTogether.Patches
     {
         internal static void Prefix(QuickPlaySongPacksDropdown __instance, ref MasterServerQuickPlaySetupData.QuickPlaySongPacksOverride ____quickPlaySongPacksOverride, ref bool ____initialized)
         {
-            var pluginMetadata = PluginManager.GetPluginFromId("MultiplayerExtensions");
-            if ((pluginMetadata == null || !PluginManager.IsEnabled(pluginMetadata)) && !Plugin.ServerDetailProvider.Selection.IsOfficial)
-            {
-                Plugin.Logger.Info("MultiplayerExtensions not installed, not overriding packs");
-                ____quickPlaySongPacksOverride = null;
-                ____initialized = false;
-            }
-            else if (QuickPlaySongPacksDropdownPatch.didTaskFail)
+            if (ModStatusProvider.ShouldBlockSongPackOverrides || QuickPlaySongPacksDropdownPatch.TaskState != QuickPlaySongPacksDropdownPatch.TaskStateEnum.Finished)
             {
                 ____quickPlaySongPacksOverride = null;
                 ____initialized = false;

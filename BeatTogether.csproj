@@ -134,9 +134,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\ServerDetails.cs" />
+    <Compile Include="Patches\MultiplayerModeSelectionFlowCoordinatorPatch.cs" />
     <Compile Include="Patches\MasterServerQuickPlaySetupModelPatch.cs" />
     <Compile Include="Patches\QuickPlaySongPacksDropdownPatch.cs" />
     <Compile Include="Patches\MessageHandlerPatch.cs" />
+    <Compile Include="Providers\ModStatusProvider.cs" />
     <Compile Include="Providers\GameClassInstanceProvider.cs" />
     <Compile Include="Providers\ServerDetailProvider.cs" />
     <Compile Include="Providers\ServerStatusFetcher.cs" />

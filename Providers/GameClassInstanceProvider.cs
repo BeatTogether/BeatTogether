@@ -13,5 +13,7 @@ namespace BeatTogether.Providers
 
         public UserMessageHandler UserMessageHandler { get; set; }
         public MultiplayerModeSelectionViewController MultiplayerModeSelectionViewController { get; set; }
+        public MasterServerQuickPlaySetupModel MasterServerQuickPlaySetupModel { get; set; }
+        public QuickPlaySongPacksDropdown QuickPlaySongPacksDropdown { get; set; }
     }
 }

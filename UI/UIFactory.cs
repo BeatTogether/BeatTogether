@@ -41,6 +41,8 @@ namespace BeatTogether.UI
             gameObject.GetComponent<LayoutElement>().preferredWidth = 90;
             gameObject.SetActive(true);
 
+            // Initial Update for the SongPacks
+            Patches.QuickPlaySongPacksDropdownPatch.UpdateSongPacks();
             return serverSelection;
         }
     }
