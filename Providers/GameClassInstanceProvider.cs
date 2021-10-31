@@ -15,5 +15,10 @@ namespace BeatTogether.Providers
         public MultiplayerModeSelectionViewController MultiplayerModeSelectionViewController { get; set; }
         public MasterServerQuickPlaySetupModel MasterServerQuickPlaySetupModel { get; set; }
         public QuickPlaySongPacksDropdown QuickPlaySongPacksDropdown { get; set; }
+
+        public MultiplayerModeSelectionFlowCoordinator MultiplayerModeSelectionFlowCoordinator { get; set; }
+        public JoinQuickPlayViewController JoinQuickPlayViewController { get; set; }
+        public JoiningLobbyViewController JoiningLobbyViewController { get; set; }
+
     }
 }

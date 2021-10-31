@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using IPA.Utilities;
 using BeatTogether.Providers;
+using System.Threading;
 // TODO: Add some sort of loadingScreen while it checks SongPackOverrides
 namespace BeatTogether.Patches
 {
@@ -17,6 +18,7 @@ namespace BeatTogether.Patches
             Unknown, Finished, Running, Failed
         }
         public static TaskStateEnum TaskState { get; private set; } = TaskStateEnum.Unknown;
+        private static CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         internal static void Prefix(QuickPlaySongPacksDropdown __instance)
         {
             GameClassInstanceProvider.Instance.QuickPlaySongPacksDropdown = __instance;
@@ -24,6 +26,8 @@ namespace BeatTogether.Patches
 
         public static void UpdateSongPacks()
         {
+            if (cancellationTokenSource.Token.CanBeCanceled) cancellationTokenSource.Cancel();
+            cancellationTokenSource = new CancellationTokenSource();
             QuickPlaySongPacksDropdown instance = GameClassInstanceProvider.Instance.QuickPlaySongPacksDropdown;
             if (instance != null)
                 instance.SetField<QuickPlaySongPacksDropdown, MasterServerQuickPlaySetupData.QuickPlaySongPacksOverride>("_quickPlaySongPacksOverride", null);
@@ -38,7 +42,7 @@ namespace BeatTogether.Patches
                 try
                 {
                     Plugin.Logger.Info("Get QuickPlaySongPacksOverride");
-                    var quickPlaySetupData = await GameClassInstanceProvider.Instance.MasterServerQuickPlaySetupModel.GetQuickPlaySetupAsync(System.Threading.CancellationToken.None);
+                    var quickPlaySetupData = await GameClassInstanceProvider.Instance.MasterServerQuickPlaySetupModel.GetQuickPlaySetupAsync(cancellationTokenSource.Token);
                     return quickPlaySetupData.quickPlayAvailablePacksOverride;
                 }
                 catch (Exception)
@@ -56,7 +60,7 @@ namespace BeatTogether.Patches
                     instance.SetField("_initialized", false);
                 }
                 if (TaskState == TaskStateEnum.Running) TaskState = TaskStateEnum.Finished;
-                MultiplayerModeSelectionFlowCoordinatorPatch.ShowQuickPlayLobbyScreenIfWaiting();
+                //MultiplayerModeSelectionFlowCoordinatorPatch.ShowQuickPlayLobbyScreenIfWaiting();
                 //GameClassInstanceProvider.Instance.QuickPlaySongPacksDropdown.LazyInit();
             }
             );
