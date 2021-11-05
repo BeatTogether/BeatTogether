@@ -2,7 +2,6 @@
 using BeatSaberMarkupLanguage.ViewControllers;
 using BeatTogether.Models;
 using BeatTogether.Providers;
-using Hive.Versioning;
 using IPA.Utilities;
 using Polyglot;
 using System;
