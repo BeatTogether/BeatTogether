@@ -1,0 +1,3 @@
+﻿<bg xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
+  <list-setting text='Playing on' value='server-selection' choices='server-options' anchor-pos-x='-1' anchor-pos-y='0.15' rich-text='true' size-delta-x='60' overflow-mode='Ellipsis' pref-width='90'></list-setting>
+</bg>

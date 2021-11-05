@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29926.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatTogether", "BeatTogether.csproj", "{8421DD7B-8755-425F-9F6F-7EE4FDB74312}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BeatTogether", "BeatTogether/BeatTogether.csproj", "{8421DD7B-8755-425F-9F6F-7EE4FDB74312}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
