@@ -2,6 +2,7 @@
 using BeatSaberMarkupLanguage.ViewControllers;
 using BeatTogether.Models;
 using BeatTogether.Providers;
+using Hive.Versioning;
 using IPA.Utilities;
 using Polyglot;
 using System;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
+using UnityEngine;
 using Zenject;
 
 namespace BeatTogether.UI
@@ -77,21 +79,29 @@ namespace BeatTogether.UI
         private async Task RefreshMasterServer()
         {
             _networkPlayerModel.ResetMasterServerReachability();
+
+            _maintenanceMessageText.richText = true;
+            _maintenanceMessageText.SetText("Status: <color=\"grey\">UNKNOWN");
+
             MasterServerAvailabilityData availabilityData = await _serverAvailabilityModel.GetAvailabilityAsync(CancellationToken.None);
             _quickPlaySetupData = await _serverQuickPlaySetupModel.GetQuickPlaySetupAsync(CancellationToken.None);
 
-            string statusText = availabilityData.GetLocalizedMessage(Localization.Instance.SelectedLanguage) ?? availabilityData.status switch
+            string? statusText = new Version(Application.version) < new Version(availabilityData.minimumAppVersion) ? 
+                "<color=\"red\">OUTDATED" : 
+                (availabilityData.GetLocalizedMessage(Localization.Instance.SelectedLanguage) ?? 
+                (availabilityData.status switch
             {
                 MasterServerAvailabilityData.AvailabilityStatus.Online
                     => "<color=\"green\">ONLINE",
                 MasterServerAvailabilityData.AvailabilityStatus.MaintenanceUpcoming
                     => "<color=\"yellow\">MAINTENANCE UPCOMING",
                 MasterServerAvailabilityData.AvailabilityStatus.Offline
-                    => "<color=\"green\">ONLINE"
-            };
+                    => "<color=\"grey\">OFFLINE",
+                _ => null
+            }));
 
-            _maintenanceMessageText.richText = true;
-            _maintenanceMessageText.SetText($"Status: {statusText}");
+            if (statusText != null)
+                _maintenanceMessageText.SetText($"Status: {statusText}");
 
             // TODO: Loading thingy?
         }
