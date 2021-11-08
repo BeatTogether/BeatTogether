@@ -133,7 +133,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="Zenject">
-      <HintPath>R:\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\Zenject.dll</HintPath>
+      <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Zenject-usage">

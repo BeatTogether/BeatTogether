@@ -1,8 +1,10 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.Components.Settings;
 using BeatTogether.Providers;
 using IPA.Utilities;
 using Polyglot;
+using SiraUtil.Logging;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -24,6 +26,7 @@ namespace BeatTogether.UI
         private IMasterServerQuickPlaySetupModel _serverQuickPlaySetupModel = null!;
         private MultiplayerModeSelectionViewController _multiplayerModeSelectionView = null!;
         private MultiplayerModeSelectionFlowCoordinator _multiplayerModeSelectionFlow = null!;
+        private SiraLog _logger = null!;
 
         private FieldAccessor<MultiplayerModeSelectionViewController, TextMeshProUGUI>.Accessor _maintenanceMessageTextAccessor
             = FieldAccessor<MultiplayerModeSelectionViewController, TextMeshProUGUI>.GetAccessor("_maintenanceMessageText");
@@ -49,7 +52,8 @@ namespace BeatTogether.UI
             IMasterServerAvailabilityModel serverAvailability,
             IMasterServerQuickPlaySetupModel serverQuickPlaySetupModel,
             MultiplayerModeSelectionViewController multiplayerModeSelectionView,
-            MultiplayerModeSelectionFlowCoordinator multiplayerModeSelectionFlow)
+            MultiplayerModeSelectionFlowCoordinator multiplayerModeSelectionFlow,
+            SiraLog logger)
         {
             _serverDetails = serverDetails;
             _networkPlayerModel = networkPlayerModel;
@@ -57,11 +61,13 @@ namespace BeatTogether.UI
             _serverQuickPlaySetupModel = serverQuickPlaySetupModel;
             _multiplayerModeSelectionView = multiplayerModeSelectionView;
             _multiplayerModeSelectionFlow = multiplayerModeSelectionFlow;
+            _logger = logger;
         }
 
         public void Initialize()
         {
             BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), ResourcePath), _multiplayerModeSelectionView.gameObject, this);
+            (serverList.gameObject.transform.GetChild(1) as RectTransform)!.sizeDelta = new Vector2(60, 0);
             _multiplayerModeSelectionView.didActivateEvent += _multiplayerModeSelectionView_didActivateEvent;
         }
 
@@ -77,13 +83,18 @@ namespace BeatTogether.UI
 
         private async Task RefreshMasterServer()
         {
+            _logger.Debug("Refreshing MasterServer");
+
             _networkPlayerModel.ResetMasterServerReachability();
 
+            _maintenanceMessageText.gameObject.SetActive(true);
             _maintenanceMessageText.richText = true;
-            _maintenanceMessageText.SetText("Status: <color=\"grey\">UNKNOWN");
+            _maintenanceMessageText.SetText("Status: <color=\"gray\">UNKNOWN");
 
             MasterServerAvailabilityData availabilityData = await _serverAvailabilityModel.GetAvailabilityAsync(CancellationToken.None);
-            _quickPlaySetupData = await _serverQuickPlaySetupModel.GetQuickPlaySetupAsync(CancellationToken.None);
+            //_quickPlaySetupData = await _serverQuickPlaySetupModel.GetQuickPlaySetupAsync(CancellationToken.None);
+
+            _logger.Debug($"Server status: {availabilityData.status.ToString()}");
 
             string? statusText = new Version(Application.version) < new Version(availabilityData.minimumAppVersion) ? 
                 "<color=\"red\">OUTDATED" : 
@@ -95,7 +106,7 @@ namespace BeatTogether.UI
                 MasterServerAvailabilityData.AvailabilityStatus.MaintenanceUpcoming
                     => "<color=\"yellow\">MAINTENANCE UPCOMING",
                 MasterServerAvailabilityData.AvailabilityStatus.Offline
-                    => "<color=\"grey\">OFFLINE",
+                    => "<color=\"gray\">OFFLINE",
                 _ => null
             }));
 
@@ -104,6 +115,9 @@ namespace BeatTogether.UI
 
             // TODO: Loading thingy?
         }
+
+        [UIComponent("server-list")]
+        private ListSetting serverList = null!;
 
         [UIValue("server-options")]
         private List<object> servers => new(_serverDetails.Servers);
