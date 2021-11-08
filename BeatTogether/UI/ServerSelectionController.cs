@@ -81,9 +81,12 @@ namespace BeatTogether.UI
             _ = RefreshMasterServer();
         }
 
+        private CancellationTokenSource? _refreshCts;
+
         private async Task RefreshMasterServer()
         {
-            _logger.Debug("Refreshing MasterServer");
+            _refreshCts?.Cancel();
+            _refreshCts = new();
 
             _networkPlayerModel.ResetMasterServerReachability();
 
@@ -91,8 +94,7 @@ namespace BeatTogether.UI
             _maintenanceMessageText.richText = true;
             _maintenanceMessageText.SetText("Status: <color=\"gray\">UNKNOWN");
 
-            MasterServerAvailabilityData availabilityData = await _serverAvailabilityModel.GetAvailabilityAsync(CancellationToken.None);
-            //_quickPlaySetupData = await _serverQuickPlaySetupModel.GetQuickPlaySetupAsync(CancellationToken.None);
+            MasterServerAvailabilityData availabilityData = await _serverAvailabilityModel.GetAvailabilityAsync(_refreshCts.Token);
 
             _logger.Debug($"Server status: {availabilityData.status.ToString()}");
 
@@ -112,6 +114,8 @@ namespace BeatTogether.UI
 
             if (statusText != null)
                 _maintenanceMessageText.SetText($"Status: {statusText}");
+
+            _quickPlaySetupData = await _serverQuickPlaySetupModel.GetQuickPlaySetupAsync(_refreshCts.Token);
 
             // TODO: Loading thingy?
         }
