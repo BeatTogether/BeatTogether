@@ -18,7 +18,7 @@ namespace BeatTogether.Providers
         internal ServerDetailProvider(Config config)
         {
             _config = config;
-            Servers = config.Servers;
+            Servers = new(_config.Servers);
             Servers.Add(new ServerDetails { ServerName = ServerDetails.OfficialServerName });
         }
 

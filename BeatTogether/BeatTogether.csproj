@@ -35,6 +35,9 @@
 		<DisableZipRelease>True</DisableZipRelease>
 	</PropertyGroup>
 	<ItemGroup>
+	  <None Remove="UI\ServerSelectionController.bsml" />
+	</ItemGroup>
+	<ItemGroup>
 		<Reference Include="0Harmony">
 			<HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
 			<Private>False</Private>
@@ -140,6 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
+    <EmbeddedResource Include="UI\ServerSelectionController.bsml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />

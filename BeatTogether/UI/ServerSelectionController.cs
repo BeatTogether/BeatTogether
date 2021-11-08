@@ -1,11 +1,11 @@
-﻿using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.ViewControllers;
-using BeatTogether.Models;
+﻿using BeatSaberMarkupLanguage;
+using BeatSaberMarkupLanguage.Attributes;
 using BeatTogether.Providers;
 using IPA.Utilities;
 using Polyglot;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
@@ -14,10 +14,10 @@ using Zenject;
 
 namespace BeatTogether.UI
 {
-    [HotReload(RelativePathToLayout = @"..\UI\ServerSelectionController.bsml")]
-    [ViewDefinition("BeatTogether.UI.ServerSelectionController.bsml")]
-    internal class ServerSelectionController : BSMLAutomaticViewController, IInitializable, IDisposable
+    internal class ServerSelectionController : IInitializable, IDisposable
     {
+        public const string ResourcePath = "BeatTogether.UI.ServerSelectionController.bsml";
+
         private ServerDetailProvider _serverDetails = null!;
         private IUnifiedNetworkPlayerModel _networkPlayerModel = null!;
         private IMasterServerAvailabilityModel _serverAvailabilityModel = null!;
@@ -61,8 +61,8 @@ namespace BeatTogether.UI
 
         public void Initialize()
         {
+            BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), ResourcePath), _multiplayerModeSelectionView.gameObject, this);
             _multiplayerModeSelectionView.didActivateEvent += _multiplayerModeSelectionView_didActivateEvent;
-            gameObject.transform.SetParent(_multiplayerModeSelectionView.transform.parent, false);
         }
 
         public void Dispose()
@@ -72,7 +72,7 @@ namespace BeatTogether.UI
 
         private void _multiplayerModeSelectionView_didActivateEvent(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
-            DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
+            _ = RefreshMasterServer();
         }
 
         private async Task RefreshMasterServer()
@@ -106,17 +106,16 @@ namespace BeatTogether.UI
         }
 
         [UIValue("server-options")]
-        private List<ServerDetails> servers => _serverDetails.Servers;
+        private List<object> servers => new(_serverDetails.Servers);
 
         [UIValue("server-selection")]
-        private ServerDetails selectedServer
+        private string selectedServer
         {
-            get => _serverDetails.SelectedServer;
+            get => _serverDetails.SelectedServer.ToString();
             set
             {
-                _serverDetails.SelectedServer = value;
+                _serverDetails.SelectedServer = _serverDetails.GetServerDetails(value);
                 _ = RefreshMasterServer();
-                NotifyPropertyChanged(nameof(selectedServer));
             }
         }
     }
