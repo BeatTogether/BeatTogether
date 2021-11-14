@@ -26,6 +26,6 @@ The `BeatTogether.dll` should end up in your `Plugins` folder (**NOT** the one i
 
 ## How to Play Custom Songs
 
-**To play a custom song with a Quest user, they must manually install the custom map prior to a session. Be sure to alert them of this before starting a game.**
+**To play a custom song with a Quest user, they must have MQE. Tell them to follow the instructions on the Quest Plugin repo.**
 
 For PC players, doing customs is simple! Just go to the install instructions for the MultiplayerExtensions plugin and put it inside your Beat Saber Plugins folder. You can view these instructions by clicking [here](https://github.com/Zingabopp/MultiplayerExtensions#installation).
