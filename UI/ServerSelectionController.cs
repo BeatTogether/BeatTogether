@@ -35,6 +35,8 @@ namespace BeatTogether.UI
             Plugin.Configuration.SelectedServer = details.ServerName;
             Plugin.ServerDetailProvider.Selection = details;
 
+            Patches.QuickPlaySongPacksDropdownPatch.UpdateSongPacks();
+
             // Keep this code, as it informs MPEX of the change
             // (by invoking the getters):
             var networkConfig = GetNetworkConfig();
