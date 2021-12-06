@@ -1,1 +1,0 @@
-﻿<list-setting text='Playing on' id='server-list' value='server-selection' choices='server-options' rich-text='true' overflow-mode='Ellipsis' size-delta-x='-75' anchor-pos-y='0.15'></list-setting>

@@ -1,7 +1,4 @@
-﻿using System.Reflection;
-using System.Threading.Tasks;
-using BeatTogether.Installers;
-using BeatTogether.Providers;
+﻿using BeatTogether.Installers;
 using HarmonyLib;
 using IPA;
 using IPA.Config.Stores;
@@ -12,7 +9,6 @@ using IPALogger = IPA.Logging.Logger;
 
 namespace BeatTogether
 {
-
     [Plugin(RuntimeOptions.SingleStartInit)]
     class Plugin
     {
@@ -29,8 +25,7 @@ namespace BeatTogether
             _metadata = metadata;
 
             zenjector.UseLogger(logger);
-            zenjector.Install<BtAppInstaller>(Location.App, config);
-            zenjector.Install<BtMenuInstaller>(Location.Menu);
+            zenjector.Install<BtMenuInstaller>(Location.Menu, config);
         }
 
         [OnEnable]

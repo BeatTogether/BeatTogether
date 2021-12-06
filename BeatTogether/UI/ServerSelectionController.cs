@@ -1,140 +1,116 @@
 ﻿using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components.Settings;
-using BeatTogether.Providers;
+using BeatTogether.Models;
+using HMUI;
 using IPA.Utilities;
-using Polyglot;
+using MultiplayerCore.Patchers;
+using SiraUtil.Affinity;
 using SiraUtil.Logging;
-using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using TMPro;
 using UnityEngine;
 using Zenject;
 
 namespace BeatTogether.UI
 {
-    internal class ServerSelectionController : IInitializable, IDisposable
+    internal class ServerSelectionController : IInitializable, IAffinity
     {
-        public const string ResourcePath = "BeatTogether.UI.ServerSelectionController.bsml";
+        public const string ResourcePath = "BeatTogether.UI.ServerSelection.bsml";
+        private ServerDetail _selectedServer;
 
-        private ServerDetailProvider _serverDetails = null!;
-        private IUnifiedNetworkPlayerModel _networkPlayerModel = null!;
-        private IMasterServerAvailabilityModel _serverAvailabilityModel = null!;
-        private IMasterServerQuickPlaySetupModel _serverQuickPlaySetupModel = null!;
-        private MultiplayerModeSelectionViewController _multiplayerModeSelectionView = null!;
-        private MultiplayerModeSelectionFlowCoordinator _multiplayerModeSelectionFlow = null!;
-        private SiraLog _logger = null!;
+        private FieldAccessor<HierarchyManager, ScreenSystem>.Accessor _screenSystemAccessor
+            = FieldAccessor<HierarchyManager, ScreenSystem>.GetAccessor("_screenSystem");
 
-        private FieldAccessor<MultiplayerModeSelectionViewController, TextMeshProUGUI>.Accessor _maintenanceMessageTextAccessor
-            = FieldAccessor<MultiplayerModeSelectionViewController, TextMeshProUGUI>.GetAccessor("_maintenanceMessageText");
-        private FieldAccessor<MultiplayerModeSelectionFlowCoordinator, MasterServerQuickPlaySetupData>.Accessor _quickPlaySetupDataAccessor
-            = FieldAccessor<MultiplayerModeSelectionFlowCoordinator, MasterServerQuickPlaySetupData>.GetAccessor("_masterServerQuickPlaySetupData");
-        
-        private TextMeshProUGUI _maintenanceMessageText
+        private ScreenSystem _screenSystem
+            => _screenSystemAccessor(ref _hierarchyManager);
+
+        private HierarchyManager _hierarchyManager;
+        private readonly MainFlowCoordinator _mainFlow;
+        private readonly MultiplayerModeSelectionFlowCoordinator _modeSelectionFlow;
+        private readonly NetworkConfigPatcher _networkConfigPatcher;
+        private readonly Config _config;
+        private readonly SiraLog _logger;
+
+        [UIComponent("server-list")]
+        private ListSetting _serverList = null!;
+
+        [UIValue("server")]
+        private ServerDetail _serverValue
         {
-            get => _maintenanceMessageTextAccessor(ref _multiplayerModeSelectionView);
-            set => _maintenanceMessageTextAccessor(ref _multiplayerModeSelectionView) = value;
+            get => _selectedServer;
+            set {
+                _selectedServer = value;
+                if (_selectedServer.IsOfficial)
+                    _networkConfigPatcher.UseOfficialConfig();
+                else
+                    _networkConfigPatcher.UseMasterServer(_selectedServer.EndPoint!, _selectedServer.StatusUri, _selectedServer.MaxPartySize);
+
+                _mainFlow.InvokeMethod<object, FlowCoordinator>("DismissFlowCoordinator", _modeSelectionFlow, ViewController.AnimationDirection.Horizontal, null, true);
+                _mainFlow.InvokeMethod<object, FlowCoordinator>("PresentFlowCoordinator", _modeSelectionFlow, null, ViewController.AnimationDirection.Horizontal, true, false);
+            }
         }
 
-        private MasterServerQuickPlaySetupData _quickPlaySetupData
-        {
-            get => _quickPlaySetupDataAccessor(ref _multiplayerModeSelectionFlow);
-            set => _quickPlaySetupDataAccessor(ref _multiplayerModeSelectionFlow) = value;
-        }
+        [UIValue("server-options")]
+        private List<object> _serverOptions;
 
-        [Inject]
-        internal void Inject(
-            ServerDetailProvider serverDetails,
-            IUnifiedNetworkPlayerModel networkPlayerModel,
-            IMasterServerAvailabilityModel serverAvailability,
-            IMasterServerQuickPlaySetupModel serverQuickPlaySetupModel,
-            MultiplayerModeSelectionViewController multiplayerModeSelectionView,
-            MultiplayerModeSelectionFlowCoordinator multiplayerModeSelectionFlow,
+        internal ServerSelectionController(
+            HierarchyManager hierarchyManager,
+            MainFlowCoordinator mainFlow,
+            MultiplayerModeSelectionFlowCoordinator modeSelectionFlow,
+            NetworkConfigPatcher networkConfigPatcher,
+            Config config,
             SiraLog logger)
         {
-            _serverDetails = serverDetails;
-            _networkPlayerModel = networkPlayerModel;
-            _serverAvailabilityModel = serverAvailability;
-            _serverQuickPlaySetupModel = serverQuickPlaySetupModel;
-            _multiplayerModeSelectionView = multiplayerModeSelectionView;
-            _multiplayerModeSelectionFlow = multiplayerModeSelectionFlow;
+            _hierarchyManager = hierarchyManager;
+            _mainFlow = mainFlow;
+            _modeSelectionFlow = modeSelectionFlow;
+            _networkConfigPatcher = networkConfigPatcher;
+            _config = config;
             _logger = logger;
+
+            List<ServerDetail> servers = new(_config.Servers);
+            servers.Add(new ServerDetail
+            {
+                ServerName = Config.OfficialServerName
+            });
+
+            _selectedServer = servers.Find(server => server.ServerName == _config.SelectedServer);
+            _serverOptions = new(servers);
         }
 
         public void Initialize()
         {
-            BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), ResourcePath), _multiplayerModeSelectionView.gameObject, this);
-            (serverList.gameObject.transform.GetChild(1) as RectTransform)!.sizeDelta = new Vector2(60, 0);
-            _multiplayerModeSelectionView.didActivateEvent += _multiplayerModeSelectionView_didActivateEvent;
+            BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), ResourcePath), _screenSystem.titleViewController.gameObject, this);
+            (_serverList.gameObject.transform.GetChild(1) as RectTransform)!.sizeDelta = new Vector2(60, 0);
+            _serverList.transform.position += new Vector3(0, -0.5f, 0);
+            _serverList.gameObject.SetActive(false);
         }
 
-        public void Dispose()
+        [AffinityPrefix]
+        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "DidActivate")]
+        private void DidActivate()
         {
-            _multiplayerModeSelectionView.didActivateEvent -= _multiplayerModeSelectionView_didActivateEvent;
+            if (_selectedServer.IsOfficial)
+                _networkConfigPatcher.UseOfficialConfig();
+            else
+                _networkConfigPatcher.UseMasterServer(_selectedServer.EndPoint!, _selectedServer.StatusUri, _selectedServer.MaxPartySize);
         }
 
-        private void _multiplayerModeSelectionView_didActivateEvent(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+        [AffinityPrefix]
+        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "DidDeactivate")]
+        private void DidDeactivate() => _serverList.gameObject.SetActive(false);
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), nameof(MultiplayerModeSelectionFlowCoordinator.TryShowModeSelection))]
+        private void TryShowModeSelection() => _serverList.gameObject.SetActive(true);
+
+        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "TopViewControllerWillChange")]
+        private void TopViewControllerWillChange(ViewController newViewController)
         {
-            _ = RefreshMasterServer();
-        }
-
-        private CancellationTokenSource? _refreshCts;
-
-        private async Task RefreshMasterServer()
-        {
-            _refreshCts?.Cancel();
-            _refreshCts = new();
-
-            _networkPlayerModel.ResetMasterServerReachability();
-
-            _maintenanceMessageText.gameObject.SetActive(true);
-            _maintenanceMessageText.richText = true;
-            _maintenanceMessageText.SetText("Status: <color=\"gray\">UNKNOWN");
-
-            MasterServerAvailabilityData availabilityData = await _serverAvailabilityModel.GetAvailabilityAsync(_refreshCts.Token);
-
-            _logger.Debug($"Server status: {availabilityData.status.ToString()}");
-
-            string? statusText = new Version(Application.version) < new Version(availabilityData.minimumAppVersion) ? 
-                "<color=\"red\">OUTDATED" : 
-                (availabilityData.GetLocalizedMessage(Localization.Instance.SelectedLanguage) ?? 
-                (availabilityData.status switch
-            {
-                MasterServerAvailabilityData.AvailabilityStatus.Online
-                    => "<color=\"green\">ONLINE",
-                MasterServerAvailabilityData.AvailabilityStatus.MaintenanceUpcoming
-                    => "<color=\"yellow\">MAINTENANCE UPCOMING",
-                MasterServerAvailabilityData.AvailabilityStatus.Offline
-                    => "<color=\"gray\">OFFLINE",
-                _ => null
-            }));
-
-            if (statusText != null)
-                _maintenanceMessageText.SetText($"Status: {statusText}");
-
-            _quickPlaySetupData = await _serverQuickPlaySetupModel.GetQuickPlaySetupAsync(_refreshCts.Token);
-
-            // TODO: Loading thingy?
-        }
-
-        [UIComponent("server-list")]
-        private ListSetting serverList = null!;
-
-        [UIValue("server-options")]
-        private List<object> servers => new(_serverDetails.Servers);
-
-        [UIValue("server-selection")]
-        private string selectedServer
-        {
-            get => _serverDetails.SelectedServer.ToString();
-            set
-            {
-                _serverDetails.SelectedServer = _serverDetails.GetServerDetails(value);
-                _ = RefreshMasterServer();
-            }
+            _serverList.gameObject.SetActive(
+                newViewController is MultiplayerModeSelectionViewController ||
+                newViewController is SimpleDialogPromptViewController);
         }
     }
 }
