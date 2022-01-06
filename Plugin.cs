@@ -42,6 +42,6 @@ namespace BeatTogether
 
         [OnDisable]
         public void OnDisable()
-            => Harmony.UnpatchAll(_harmonyId);
+            => Harmony.UnpatchSelf();
     }
 }

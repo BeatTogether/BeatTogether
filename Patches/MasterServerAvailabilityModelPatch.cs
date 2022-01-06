@@ -16,7 +16,7 @@ namespace BeatTogether.Patches
                 await serverStatusFetcher.FetchAll();
                 return new MasterServerAvailabilityData()
                 {
-                    minimumAppVersion = Application.version,
+                    minimumAppVersion = "0.0.0",
                     status = MasterServerAvailabilityData.AvailabilityStatus.Online
                 };
             });
