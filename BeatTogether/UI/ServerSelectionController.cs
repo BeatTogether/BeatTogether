@@ -9,6 +9,7 @@ using IPA.Utilities;
 using MultiplayerCore.Patchers;
 using SiraUtil.Affinity;
 using SiraUtil.Logging;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -19,6 +20,13 @@ namespace BeatTogether.UI
     internal class ServerSelectionController : IInitializable, IAffinity
     {
         public const string ResourcePath = "BeatTogether.UI.ServerSelectionController.bsml";
+
+        private Action<FlowCoordinator, FlowCoordinator, ViewController.AnimationDirection, Action, bool> _dismissFlowCoordinator
+            = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, FlowCoordinator, ViewController.AnimationDirection, Action, bool>>
+                .GetDelegate("DismissFlowCoordinator");
+        private Action<FlowCoordinator, FlowCoordinator, Action, ViewController.AnimationDirection, bool, bool> _presentFlowCoordinator
+            = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, FlowCoordinator, Action, ViewController.AnimationDirection, bool, bool>>
+                .GetDelegate("PresentFlowCoordinator");
 
         private FloatingScreen _screen = null!;
 
@@ -74,9 +82,13 @@ namespace BeatTogether.UI
             else
                 _networkConfig.UseMasterServer(server.EndPoint!, server.StatusUri, server.MaxPartySize);
 
-            _mainFlow.InvokeMethod<object, FlowCoordinator>("DismissFlowCoordinator", _modeSelectionFlow, ViewController.AnimationDirection.Horizontal, null, true);
-            _mainFlow.InvokeMethod<object, FlowCoordinator>("PresentFlowCoordinator", _modeSelectionFlow, null, ViewController.AnimationDirection.Horizontal, true, false);
+            _serverList.interactable = false;
+            _dismissFlowCoordinator(_mainFlow, _modeSelectionFlow, ViewController.AnimationDirection.Horizontal, null!, true);
+            _presentFlowCoordinator(_mainFlow, _modeSelectionFlow, HandleTransitionFinished, ViewController.AnimationDirection.Horizontal, true, false);
         }
+
+        private void HandleTransitionFinished()
+            => _serverList.interactable = true;
 
         [AffinityPrefix]
         [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "DidActivate")]
