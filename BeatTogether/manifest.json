@@ -9,7 +9,8 @@
   "dependsOn": {
     "BSIPA": "^4.2.0",
     "BeatSaberMarkupLanguage": "^1.5.0",
-    "SiraUtil": "^3.0.0"
+    "SiraUtil": "^3.0.0",
+    "MultiplayerCore": "^1.0.0"
   },
   "features": []
 }

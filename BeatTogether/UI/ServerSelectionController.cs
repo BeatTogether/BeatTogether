@@ -21,17 +21,20 @@ namespace BeatTogether.UI
     {
         public const string ResourcePath = "BeatTogether.UI.ServerSelectionController.bsml";
 
-        private Action<FlowCoordinator, FlowCoordinator, ViewController.AnimationDirection, Action, bool> _dismissFlowCoordinator
-            = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, FlowCoordinator, ViewController.AnimationDirection, Action, bool>>
-                .GetDelegate("DismissFlowCoordinator");
-        private Action<FlowCoordinator, FlowCoordinator, Action, ViewController.AnimationDirection, bool, bool> _presentFlowCoordinator
-            = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, FlowCoordinator, Action, ViewController.AnimationDirection, bool, bool>>
-                .GetDelegate("PresentFlowCoordinator");
+        private Action<FlowCoordinator, bool, bool, bool> _didActivate
+            = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, bool, bool, bool>>
+                .GetDelegate("DidActivate");
+        private Action<FlowCoordinator, bool, bool> _didDeactivate
+            = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, bool, bool>>
+                .GetDelegate("DidDeactivate");
+        private Action<FlowCoordinator, ViewController, Action, ViewController.AnimationType, ViewController.AnimationDirection> _replaceTopScreenViewController
+            = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController, Action, ViewController.AnimationType, ViewController.AnimationDirection>>
+                .GetDelegate("ReplaceTopViewController");
 
         private FloatingScreen _screen = null!;
 
-        private readonly MainFlowCoordinator _mainFlow;
         private readonly MultiplayerModeSelectionFlowCoordinator _modeSelectionFlow;
+        private readonly JoiningLobbyViewController _joiningLobbyView;
         private readonly NetworkConfigPatcher _networkConfig;
         private readonly ServerDetailsRegistry _serverRegistry;
         private readonly SiraLog _logger;
@@ -50,14 +53,14 @@ namespace BeatTogether.UI
         private List<object> _serverOptions;
 
         internal ServerSelectionController(
-            MainFlowCoordinator mainFlow,
             MultiplayerModeSelectionFlowCoordinator modeSelectionFlow,
+            JoiningLobbyViewController joiningLobbyView,
             NetworkConfigPatcher networkConfig,
             ServerDetailsRegistry serverRegistry,
             SiraLog logger)
         {
-            _mainFlow = mainFlow;
             _modeSelectionFlow = modeSelectionFlow;
+            _joiningLobbyView = joiningLobbyView;
             _networkConfig = networkConfig;
             _serverRegistry = serverRegistry;
             _logger = logger;
@@ -84,8 +87,9 @@ namespace BeatTogether.UI
                 _networkConfig.UseMasterServer(server.EndPoint!, server.StatusUri, server.MaxPartySize);
 
             _serverList.interactable = false;
-            _dismissFlowCoordinator(_mainFlow, _modeSelectionFlow, ViewController.AnimationDirection.Horizontal, null!, true);
-            _presentFlowCoordinator(_mainFlow, _modeSelectionFlow, HandleTransitionFinished, ViewController.AnimationDirection.Horizontal, true, false);
+            _didDeactivate(_modeSelectionFlow, false, false);
+            _didActivate(_modeSelectionFlow, false, true, false);
+            _replaceTopScreenViewController(_modeSelectionFlow, _joiningLobbyView, HandleTransitionFinished, ViewController.AnimationType.None, ViewController.AnimationDirection.Vertical);
         }
 
         private void HandleTransitionFinished()
@@ -123,5 +127,18 @@ namespace BeatTogether.UI
             if (newViewController is MultiplayerModeSelectionViewController && oldViewController is JoiningLobbyViewController)
                 _serverList.interactable = true;
         }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(ViewControllerTransitionHelpers), nameof(ViewControllerTransitionHelpers.DoPresentTransition))]
+        private void DoPresentTransition(ViewController toPresentViewController, ViewController toDismissViewController, ref ViewController.AnimationDirection animationDirection, ref float moveOffsetMultiplier)
+        {
+            if (toDismissViewController is JoiningLobbyViewController)
+                animationDirection = ViewController.AnimationDirection.Vertical;
+        }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(FlowCoordinator), "SetGlobalUserInteraction")]
+        private void SetGlobalUserInteraction(bool value)
+            => _serverList.interactable = value;
     }
 }
