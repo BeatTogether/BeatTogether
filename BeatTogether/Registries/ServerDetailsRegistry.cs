@@ -7,15 +7,19 @@ namespace BeatTogether.Registries
 {
     public class ServerDetailsRegistry
     {
-        public ServerDetails SelectedServer 
+        public ServerDetails SelectedServer
             => Servers.FirstOrDefault(details => details.ServerName == _config.SelectedServer)
             ?? Servers.FirstOrDefault(details => details.ServerName == Config.BeatTogetherServerName);
 
         public IReadOnlyList<ServerDetails> Servers
-            => _config.Servers.Concat(_servers).ToList();
+            => _config.Servers.Concat(_servers).Append(_officialServer).ToList();
 
         private readonly Config _config;
         private readonly List<ServerDetails> _servers = new();
+        private readonly ServerDetails _officialServer = new()
+        {
+            ServerName = Config.OfficialServerName
+        };
 
         internal ServerDetailsRegistry(
             Config config)

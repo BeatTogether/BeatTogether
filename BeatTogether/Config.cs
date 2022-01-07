@@ -25,7 +25,7 @@ namespace BeatTogether
         {
             Servers.RemoveAll(server =>
                 server.ServerName == BeatTogetherServerName);
-            Servers.Add(new ServerDetails
+            Servers.Insert(0, new ServerDetails
             {
                 ServerName = BeatTogetherServerName,
                 HostName = BeatTogetherHostName,
