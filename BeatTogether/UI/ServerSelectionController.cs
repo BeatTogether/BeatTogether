@@ -59,7 +59,7 @@ namespace BeatTogether.UI
 
         public void Initialize()
         {
-            _screen = FloatingScreen.CreateFloatingScreen(new Vector2(90, 25), false, new Vector3(0, 2.4f, 4.4f), new Quaternion(0,0,0,0));
+            _screen = FloatingScreen.CreateFloatingScreen(new Vector2(90, 90), false, new Vector3(0, 2.4f, 4.35f), new Quaternion(0,0,0,0));
             BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), ResourcePath), _screen.gameObject, this);
             (_serverList.gameObject.transform.GetChild(1) as RectTransform)!.sizeDelta = new Vector2(60, 0);
             _screen.GetComponent<CurvedCanvasSettings>().SetRadius(140);
