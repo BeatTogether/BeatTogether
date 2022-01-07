@@ -7,6 +7,7 @@ using BeatTogether.Registries;
 using HMUI;
 using IPA.Utilities;
 using MultiplayerCore.Patchers;
+using Polyglot;
 using SiraUtil.Affinity;
 using SiraUtil.Logging;
 using System;
@@ -120,20 +121,31 @@ namespace BeatTogether.UI
 
         [AffinityPrefix]
         [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "TopViewControllerWillChange")]
-        private void TopViewControllerWillChange(ViewController oldViewController, ViewController newViewController)
+        private bool TopViewControllerWillChange(ViewController oldViewController, ViewController newViewController, ViewController.AnimationType animationType)
         {
             if (newViewController is JoiningLobbyViewController)
                 _serverList.interactable = oldViewController is MultiplayerModeSelectionViewController;
             if (newViewController is MultiplayerModeSelectionViewController && oldViewController is JoiningLobbyViewController)
                 _serverList.interactable = true;
+            if (newViewController is JoiningLobbyViewController && animationType == ViewController.AnimationType.None)
+                return false;
+            return true;
         }
 
         [AffinityPrefix]
         [AffinityPatch(typeof(ViewControllerTransitionHelpers), nameof(ViewControllerTransitionHelpers.DoPresentTransition))]
-        private void DoPresentTransition(ViewController toPresentViewController, ViewController toDismissViewController, ref ViewController.AnimationDirection animationDirection, ref float moveOffsetMultiplier)
+        private void DoPresentTransition(ViewController toPresentViewController, ViewController toDismissViewController, ref ViewController.AnimationDirection animationDirection)
         {
             if (toDismissViewController is JoiningLobbyViewController)
                 animationDirection = ViewController.AnimationDirection.Vertical;
+        }
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(FlowCoordinator), "SetTitle")]
+        private void SetTitle(ref string value)
+        {
+            if (value == Localization.Get("LABEL_CHECKING_SERVER_STATUS"))
+                value = Localization.Get("LABEL_MULTIPLAYER_MODE_SELECTION");
         }
 
         [AffinityPrefix]
