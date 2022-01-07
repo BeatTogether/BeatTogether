@@ -88,7 +88,7 @@
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="UnityEngine.UI">
-		  <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\UnityEngine.UI.dll</HintPath>
+		  <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UI.dll</HintPath>
 		  <Private>False</Private>
 		</Reference>
         <Reference Include="Zenject">
