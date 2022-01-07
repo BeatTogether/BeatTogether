@@ -18,14 +18,14 @@ namespace BeatTogether
 
         public virtual string SelectedServer { get; set; } = BeatTogetherServerName;
 
-        [NonNullable, UseConverter(typeof(CollectionConverter<ServerDetail, List<ServerDetail>>))]
-        public virtual List<ServerDetail> Servers { get; set; } = new List<ServerDetail>();
+        [NonNullable, UseConverter(typeof(CollectionConverter<ServerDetails, List<ServerDetails?>>))]
+        public virtual List<ServerDetails> Servers { get; set; } = new List<ServerDetails>();
 
         public virtual void OnReload()
         {
             Servers.RemoveAll(server =>
                 server.ServerName == BeatTogetherServerName);
-            Servers.Add(new ServerDetail
+            Servers.Add(new ServerDetails
             {
                 ServerName = BeatTogetherServerName,
                 HostName = BeatTogetherHostName,

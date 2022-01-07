@@ -1,6 +1,6 @@
 ﻿namespace BeatTogether.Models
 {
-    public class ServerDetail
+    public class ServerDetails
     {
         public string ServerName { get; set; } = "";
         public string HostName { get; set; } = "";

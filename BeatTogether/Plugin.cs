@@ -25,7 +25,8 @@ namespace BeatTogether
             _metadata = metadata;
 
             zenjector.UseLogger(logger);
-            zenjector.Install<BtMenuInstaller>(Location.Menu, config);
+            zenjector.Install<BtAppInstaller>(Location.App, config);
+            zenjector.Install<BtMenuInstaller>(Location.Menu);
         }
 
         [OnEnable]
@@ -37,7 +38,7 @@ namespace BeatTogether
         [OnDisable]
         public void OnDisable()
         {
-            _harmony.UnpatchAll(ID);
+            _harmony.UnpatchSelf();
         }
     }
 }
