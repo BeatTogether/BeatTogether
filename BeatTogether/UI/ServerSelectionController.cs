@@ -76,6 +76,7 @@ namespace BeatTogether.UI
 
         private void ServerChanged(ServerDetails server)
         {
+            _logger.Debug($"Server changed to '{server.ServerName}': '{server.HostName}:{server.Port}'");
             _serverRegistry.SetSelectedServer(server);
             if (server.IsOfficial)
                 _networkConfig.UseOfficialServer();
@@ -112,5 +113,15 @@ namespace BeatTogether.UI
         [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), nameof(MultiplayerModeSelectionFlowCoordinator.TryShowModeSelection))]
         private void TryShowModeSelection() 
             => _screen.gameObject.SetActive(true);
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "TopViewControllerWillChange")]
+        private void TopViewControllerWillChange(ViewController oldViewController, ViewController newViewController)
+        {
+            if (newViewController is JoiningLobbyViewController)
+                _serverList.interactable = oldViewController is MultiplayerModeSelectionViewController;
+            if (newViewController is MultiplayerModeSelectionViewController && oldViewController is JoiningLobbyViewController)
+                _serverList.interactable = true;
+        }
     }
 }
