@@ -109,10 +109,11 @@ namespace BeatTogether.UI
 
         [AffinityPrefix]
         [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "DidDeactivate")]
-        private void DidDeactivate()
+        private void DidDeactivate(bool removedFromHierarchy)
         {
             _screen.gameObject.SetActive(false);
-            _networkConfig.UseOfficialServer();
+            if (removedFromHierarchy)
+                _networkConfig.UseOfficialServer();
         }
 
         [AffinityPrefix]
