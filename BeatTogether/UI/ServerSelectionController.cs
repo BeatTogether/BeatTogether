@@ -71,7 +71,7 @@ namespace BeatTogether.UI
 
         public void Initialize()
         {
-            _screen = FloatingScreen.CreateFloatingScreen(new Vector2(90, 90), false, new Vector3(0, 2.4f, 4.35f), new Quaternion(0,0,0,0));
+            _screen = FloatingScreen.CreateFloatingScreen(new Vector2(90, 90), false, new Vector3(0, 3f, 4.35f), new Quaternion(0,0,0,0));
             BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), ResourcePath), _screen.gameObject, this);
             (_serverList.gameObject.transform.GetChild(1) as RectTransform)!.sizeDelta = new Vector2(60, 0);
             _screen.GetComponent<CurvedCanvasSettings>().SetRadius(140);
@@ -104,6 +104,7 @@ namespace BeatTogether.UI
                 _networkConfig.UseOfficialServer();
             else
                 _networkConfig.UseMasterServer(_serverRegistry.SelectedServer.EndPoint!, _serverRegistry.SelectedServer.StatusUri, _serverRegistry.SelectedServer.MaxPartySize);
+            _screen.gameObject.SetActive(true);
         }
 
         [AffinityPrefix]
@@ -113,11 +114,6 @@ namespace BeatTogether.UI
             _screen.gameObject.SetActive(false);
             _networkConfig.UseOfficialServer();
         }
-
-        [AffinityPrefix]
-        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), nameof(MultiplayerModeSelectionFlowCoordinator.TryShowModeSelection))]
-        private void TryShowModeSelection() 
-            => _screen.gameObject.SetActive(true);
 
         [AffinityPrefix]
         [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "TopViewControllerWillChange")]
