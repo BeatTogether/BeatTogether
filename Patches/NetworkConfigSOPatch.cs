@@ -3,7 +3,7 @@ using HarmonyLib;
 
 namespace BeatTogether.Patches
 {
-    [HarmonyPatch(typeof(NetworkConfigSO), "masterServerStatusUrl", MethodType.Getter)]
+    [HarmonyPatch(typeof(NetworkConfigSO), "multiplayerStatusUrl", MethodType.Getter)]
     internal class GetMasterServerStatusUrlPatch
     {
         [HarmonyBefore("mod.serverbrowser")]
@@ -24,7 +24,7 @@ namespace BeatTogether.Patches
     internal class GetMasterServerEndPointPatch
     {
         [HarmonyBefore("mod.serverbrowser")]
-        internal static void Postfix(ref MasterServerEndPoint __result)
+        internal static void Postfix(ref DnsEndPoint __result)
         {
             var server = Plugin.ServerDetailProvider.Selection;
             if (server.IsOfficial)

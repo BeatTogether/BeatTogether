@@ -12,7 +12,7 @@ namespace BeatTogether.Patches
         internal static void Postfix(MasterServerConnectionManager __instance)
         {
             GameClassInstanceProvider.Instance.UserMessageHandler =
-                ReflectionUtil.GetField<UserMessageHandler, MasterServerConnectionManager>(__instance,
+                ReflectionUtil.GetField<UserMasterServerMessageHandler, MasterServerConnectionManager>(__instance,
                     "_messageHandler");
         }
     }

@@ -11,9 +11,9 @@ namespace BeatTogether.Providers
         {
         }
 
-        public UserMessageHandler UserMessageHandler { get; set; }
+        public UserMasterServerMessageHandler UserMessageHandler { get; set; }
         public MultiplayerModeSelectionViewController MultiplayerModeSelectionViewController { get; set; }
-        public MasterServerQuickPlaySetupModel MasterServerQuickPlaySetupModel { get; set; }
+        public QuickPlaySetupModel MasterServerQuickPlaySetupModel { get; set; }
         public QuickPlaySongPacksDropdown QuickPlaySongPacksDropdown { get; set; }
 
         public MultiplayerModeSelectionFlowCoordinator MultiplayerModeSelectionFlowCoordinator { get; set; }

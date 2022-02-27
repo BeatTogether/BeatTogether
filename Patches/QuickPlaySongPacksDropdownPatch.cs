@@ -30,7 +30,7 @@ namespace BeatTogether.Patches
             cancellationTokenSource = new CancellationTokenSource();
             QuickPlaySongPacksDropdown instance = GameClassInstanceProvider.Instance.QuickPlaySongPacksDropdown;
             if (instance != null)
-                instance.SetField<QuickPlaySongPacksDropdown, MasterServerQuickPlaySetupData.QuickPlaySongPacksOverride>("_quickPlaySongPacksOverride", null);
+                instance.SetField<QuickPlaySongPacksDropdown, QuickPlaySetupData.QuickPlaySongPacksOverride>("_quickPlaySongPacksOverride", null);
             if (ModStatusProvider.ShouldBlockSongPackOverrides)
             {
                 Plugin.Logger.Info("MultiplayerExtensions not installed, not overriding packs");
@@ -39,17 +39,17 @@ namespace BeatTogether.Patches
             TaskState = TaskStateEnum.Running;
             System.Threading.Tasks.Task.Run(async () =>
             {
-                try
-                {
-                    Plugin.Logger.Info("Get QuickPlaySongPacksOverride");
-                    var quickPlaySetupData = await GameClassInstanceProvider.Instance.MasterServerQuickPlaySetupModel.GetQuickPlaySetupAsync(cancellationTokenSource.Token);
-                    return quickPlaySetupData.quickPlayAvailablePacksOverride;
-                }
-                catch (Exception)
-                {
-                    Plugin.Logger.Warn("Could not get QuickPlaySongPacksOverride");
-                    TaskState = TaskStateEnum.Failed;
-                    return null;
+            try
+            {
+                Plugin.Logger.Info("Get QuickPlaySongPacksOverride");
+                var quickPlaySetupData = await GameClassInstanceProvider.Instance.MasterServerQuickPlaySetupModel.GetQuickPlaySetupAsync(cancellationTokenSource.Token);
+                return quickPlaySetupData.quickPlayAvailablePacksOverride;
+            }
+            catch (Exception)
+            {
+                Plugin.Logger.Warn("Could not get QuickPlaySongPacksOverride");
+                TaskState = TaskStateEnum.Failed;
+                return null;
                 }
             }).ContinueWith(r =>
             {
@@ -70,7 +70,7 @@ namespace BeatTogether.Patches
     [HarmonyPatch(typeof(QuickPlaySongPacksDropdown), "LazyInit")]
     class QuickPlaySongPacksDropdownLazyInitPatch
     {
-        internal static void Prefix(QuickPlaySongPacksDropdown __instance, ref MasterServerQuickPlaySetupData.QuickPlaySongPacksOverride ____quickPlaySongPacksOverride, ref bool ____initialized)
+        internal static void Prefix(QuickPlaySongPacksDropdown __instance, ref QuickPlaySetupData.QuickPlaySongPacksOverride ____quickPlaySongPacksOverride, ref bool ____initialized)
         {
             if (ModStatusProvider.ShouldBlockSongPackOverrides || QuickPlaySongPacksDropdownPatch.TaskState != QuickPlaySongPacksDropdownPatch.TaskStateEnum.Finished)
             {

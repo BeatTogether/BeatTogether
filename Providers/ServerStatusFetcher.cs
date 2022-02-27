@@ -33,7 +33,7 @@ namespace BeatTogether.Providers
 
         #region Private Methods
 
-        private async Task<KeyValuePair<string, MasterServerAvailabilityData>> FetchSingle(ServerDetails server)
+        private async Task<KeyValuePair<string, MultiplayerStatusData>> FetchSingle(ServerDetails server)
         {
             var url = server.StatusUri;
             Plugin.Logger.Debug($"Fetching status for '{server.ServerName}' from '{url}'.");
@@ -45,16 +45,16 @@ namespace BeatTogether.Providers
                 var response = await httpClient.GetStringAsync(url);
                 Plugin.Logger.Debug($"Finished fetching status for '{server.ServerName}' from '{url}'.");
 
-                return new KeyValuePair<string, MasterServerAvailabilityData>(
+                return new KeyValuePair<string, MultiplayerStatusData>(
                     server.ServerName,
-                    JsonUtility.FromJson<MasterServerAvailabilityData>(response)
+                    JsonUtility.FromJson<MultiplayerStatusData>(response)
                 );
             }
             catch (Exception e)
             {
                 Plugin.Logger.Warn($"Failed to fetch status for '{server.ServerName}' from '{url}'. {e.Message}");
             }
-            return new KeyValuePair<string, MasterServerAvailabilityData>(server.ServerName, null);
+            return new KeyValuePair<string, MultiplayerStatusData>(server.ServerName, null);
         }
 
         #endregion

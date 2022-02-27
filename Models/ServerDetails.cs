@@ -8,7 +8,7 @@
 
         public static string OfficialStatusUri { set; get; }
 
-        private MasterServerEndPoint _endPoint;
+        private DnsEndPoint _endPoint;
 
         public string ServerName { get; set; }
         public string HostName { get; set; }
@@ -18,12 +18,13 @@
 
         public override string ToString() => ServerName;
 
-        public MasterServerEndPoint GetEndPoint()
+        public DnsEndPoint GetEndPoint()
         {
             if (ServerName == OFFICIAL_SERVER_NAME)
                 return null;
             if (_endPoint == null)
-                _endPoint = new MasterServerEndPoint(HostName, Port);
+                _endPoint = new DnsEndPoint(HostName, Port);
+            Plugin.Logger.Debug($"new DNS Endpoint: {_endPoint} ({HostName}:{Port})");
             return _endPoint;
         }
 

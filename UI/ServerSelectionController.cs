@@ -12,7 +12,7 @@ namespace BeatTogether.UI
 {
     internal class ServerSelectionController : MonoBehaviour
     {
-        private static MethodInfo _unauthenticateWithMasterServerMethodInfo = typeof(UserMessageHandler)
+        private static MethodInfo _unauthenticateWithMasterServerMethodInfo = typeof(UserMasterServerMessageHandler)
             .GetMethod("UnauthenticateWithMasterServer", BindingFlags.Instance | BindingFlags.NonPublic);
 
         private MultiplayerModeSelectionViewController _multiplayerView;
@@ -41,7 +41,7 @@ namespace BeatTogether.UI
             // (by invoking the getters):
             var networkConfig = GetNetworkConfig();
             var endPoint = networkConfig.masterServerEndPoint;
-            var statusUrl = networkConfig.masterServerStatusUrl;
+            var statusUrl = networkConfig.multiplayerStatusUrl;
             Plugin.Logger.Debug(
                 "Master server selection changed " +
                 $"(EndPoint={endPoint}, StatusUrl={statusUrl})"
@@ -58,7 +58,7 @@ namespace BeatTogether.UI
             var handler = GameClassInstanceProvider.Instance.UserMessageHandler;
             if (handler == null)
                 return;
-            _unauthenticateWithMasterServerMethodInfo.Invoke(handler, new object[] { });
+            _unauthenticateWithMasterServerMethodInfo?.Invoke(handler, new object[] { });
         }
 
         private void UpdateUI(MultiplayerModeSelectionViewController multiplayerView, ServerDetails details)
@@ -83,13 +83,13 @@ namespace BeatTogether.UI
 
             switch (status.status)
             {
-                case MasterServerAvailabilityData.AvailabilityStatus.Offline:
+                case MultiplayerStatusData.AvailabilityStatus.Offline:
                     textMesh.SetText("Status: <color=\"red\">OFFLINE");
                     break;
-                case MasterServerAvailabilityData.AvailabilityStatus.MaintenanceUpcoming:
+                case MultiplayerStatusData.AvailabilityStatus.MaintenanceUpcoming:
                     textMesh.SetText("Status: <color=\"yellow\">MAINTENANCE UPCOMING");
                     break;
-                case MasterServerAvailabilityData.AvailabilityStatus.Online:
+                case MultiplayerStatusData.AvailabilityStatus.Online:
                     textMesh.SetText("Status: <color=\"green\">ONLINE");
                     break;
             }

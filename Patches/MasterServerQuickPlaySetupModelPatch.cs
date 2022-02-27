@@ -9,34 +9,34 @@ using BeatTogether.Providers;
 
 namespace BeatTogether.Patches
 {
-    [HarmonyPatch(typeof(MasterServerQuickPlaySetupModel), "Init")]
+    [HarmonyPatch(typeof(QuickPlaySetupModel), "Init")]
     class MasterServerQuickPlaySetupModelInitPatch
     {
-        internal static void Postfix(MasterServerQuickPlaySetupModel __instance)
+        internal static void Postfix(QuickPlaySetupModel __instance)
         {
             GameClassInstanceProvider.Instance.MasterServerQuickPlaySetupModel = __instance;
         }
     }
 
     // TODO: Should probably check if the server was switched or not, for now we just always return false
-    [HarmonyPatch(typeof(MasterServerQuickPlaySetupModel), "IsQuickPlaySetupTaskValid")]
+    [HarmonyPatch(typeof(QuickPlaySetupModel), "IsQuickPlaySetupTaskValid")]
     class IsQuickPlaySetupTaskValidPatch
     {
-        internal static void Postfix(MasterServerQuickPlaySetupModel __instance, ref bool __result, ref Task<MasterServerQuickPlaySetupData> ____request)
+        internal static void Postfix(QuickPlaySetupModel __instance, ref bool __result, ref Task<QuickPlaySetupModel> ____request)
         {
             ____request = null;
             __result = false;
         }
     }
 
-    [HarmonyPatch(typeof(MasterServerQuickPlaySetupModel), "GetQuickPlaySetupAsync")]
+    [HarmonyPatch(typeof(QuickPlaySetupModel), "GetQuickPlaySetupAsync")]
     class GetQuickPlaySetupAsyncPatch
     {
-        internal static void Postfix(MasterServerQuickPlaySetupModel __instance, ref Task<MasterServerQuickPlaySetupData> __result, ref Task<MasterServerQuickPlaySetupData> ____request)
+        internal static void Postfix(QuickPlaySetupModel __instance, ref Task<QuickPlaySetupData> __result, ref Task<QuickPlaySetupModel> ____request)
         {
             if (ModStatusProvider.ShouldBlockSongPackOverrides)
             {
-                __result = new Task<MasterServerQuickPlaySetupData>(null);
+                __result = new Task<QuickPlaySetupData>(null);
             }
 
         }

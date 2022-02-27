@@ -3,7 +3,7 @@ using MasterServer;
 
 namespace BeatTogether.Patches
 {
-    [HarmonyPatch(typeof(UserCertificateValidator), "ValidateCertificateChainInternal")]
+    [HarmonyPatch(typeof(ClientCertificateValidator), "ValidateCertificateChain")]
     internal class ValidateCertificateChainInternalPatch
     {
         internal static bool Prefix()

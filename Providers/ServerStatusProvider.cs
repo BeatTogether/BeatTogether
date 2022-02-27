@@ -4,17 +4,17 @@ namespace BeatTogether.Providers
 {
     internal class ServerStatusProvider
     {
-        private readonly Dictionary<string, MasterServerAvailabilityData> _serverStatus;
+        private readonly Dictionary<string, MultiplayerStatusData> _serverStatus;
 
         public ServerStatusProvider()
         {
-            _serverStatus = new Dictionary<string, MasterServerAvailabilityData>();
+            _serverStatus = new Dictionary<string, MultiplayerStatusData>();
         }
 
-        public void SetServerStatus(string serverName, MasterServerAvailabilityData status) =>
+        public void SetServerStatus(string serverName, MultiplayerStatusData status) =>
             _serverStatus[serverName] = status;
 
-        public MasterServerAvailabilityData GetServerStatus(string serverName)
+        public MultiplayerStatusData GetServerStatus(string serverName)
         {
             if (_serverStatus.TryGetValue(serverName, out var status))
                 return status;
