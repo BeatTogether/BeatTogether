@@ -93,8 +93,8 @@ namespace BeatTogether.UI
             _replaceTopScreenViewController(_modeSelectionFlow, _joiningLobbyView, HandleTransitionFinished, ViewController.AnimationType.None, ViewController.AnimationDirection.Vertical);
         }
 
-        private void HandleTransitionFinished()
-            => _serverList.interactable = true;
+        private void HandleTransitionFinished() { }
+            //=> _serverList.interactable = true;
 
         [AffinityPrefix]
         [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "DidActivate")]
