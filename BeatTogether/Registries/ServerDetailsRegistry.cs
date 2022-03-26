@@ -8,7 +8,8 @@ namespace BeatTogether.Registries
     public class ServerDetailsRegistry
     {
         public ServerDetails SelectedServer
-            => Servers.FirstOrDefault(details => details.ServerName == _config.SelectedServer)
+            => TemporarySelectedServer
+            ?? Servers.FirstOrDefault(details => details.ServerName == _config.SelectedServer)
             ?? Servers.FirstOrDefault(details => details.ServerName == Config.BeatTogetherServerName);
 
         public IReadOnlyList<ServerDetails> Servers
@@ -20,6 +21,8 @@ namespace BeatTogether.Registries
         {
             ServerName = Config.OfficialServerName
         };
+
+        public TemporaryServerDetails? TemporarySelectedServer { get; private set; }
 
         internal ServerDetailsRegistry(
             Config config)
@@ -35,6 +38,16 @@ namespace BeatTogether.Registries
         }
 
         public void SetSelectedServer(ServerDetails server)
-            => _config.SelectedServer = server.ServerName;
+        {
+            if (server is TemporaryServerDetails tmpServer)
+            {
+                TemporarySelectedServer = tmpServer;
+            }
+            else
+            {
+                _config.SelectedServer = server.ServerName;
+                TemporarySelectedServer = null;
+            }
+        }
     }
 }
