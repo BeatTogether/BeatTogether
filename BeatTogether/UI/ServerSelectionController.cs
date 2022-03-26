@@ -16,7 +16,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using IPA.Config.Stores.Attributes;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
@@ -100,8 +99,8 @@ namespace BeatTogether.UI
                 _networkConfig.UseMasterServer(server.EndPoint!, server.StatusUri, server.MaxPartySize);
 
             SyncTemporarySelectedServer();
-            
-            _serverList.interactable = false;
+
+            SetInteraction(false);
             _didDeactivate(_modeSelectionFlow, false, false);
             _didActivate(_modeSelectionFlow, false, true, false);
             _replaceTopScreenViewController(_modeSelectionFlow, _joiningLobbyView, HandleTransitionFinished,
@@ -111,7 +110,7 @@ namespace BeatTogether.UI
         private void HandleTransitionFinished()
         {
         }
-        //=> _serverList.interactable = true;
+        //=> SetInteraction(true);
 
         [AffinityPrefix]
         [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "DidActivate")]
@@ -197,11 +196,10 @@ namespace BeatTogether.UI
         private bool TopViewControllerWillChange(ViewController oldViewController, ViewController newViewController,
             ViewController.AnimationType animationType)
         {
-            if (newViewController is JoiningLobbyViewController)
-                _serverList.interactable = oldViewController is MultiplayerModeSelectionViewController;
-            if (newViewController is MultiplayerModeSelectionViewController &&
-                oldViewController is JoiningLobbyViewController)
-                _serverList.interactable = true;
+            if (oldViewController is MultiplayerModeSelectionViewController)
+                SetInteraction(newViewController is JoiningLobbyViewController);
+            if (newViewController is MultiplayerModeSelectionViewController)
+                SetInteraction(true);
             if (newViewController is JoiningLobbyViewController && animationType == ViewController.AnimationType.None)
                 return false;
             return true;
@@ -225,10 +223,22 @@ namespace BeatTogether.UI
                 value = Localization.Get("LABEL_MULTIPLAYER_MODE_SELECTION");
         }
 
+        private bool _interactable = true;
+        private bool _globalInteraction = true;
+
+        private void SetInteraction(bool value)
+        {
+            _interactable = value;
+            _serverList.interactable = _interactable && _globalInteraction;
+        }
+
         [AffinityPrefix]
         [AffinityPatch(typeof(FlowCoordinator), "SetGlobalUserInteraction")]
         private void SetGlobalUserInteraction(bool value)
-            => _serverList.interactable = value;
+        {
+            _globalInteraction = value;
+            _serverList.interactable = _interactable && _globalInteraction;
+        }
 
         #region INotifyPropertyChanged
 
