@@ -19,6 +19,7 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
+using System.Threading;
 
 namespace BeatTogether.UI
 {
@@ -40,9 +41,12 @@ namespace BeatTogether.UI
                     ViewController.AnimationType, ViewController.AnimationDirection>>
                 .GetDelegate("ReplaceTopViewController");
 
+        private FieldAccessor<MultiplayerModeSelectionFlowCoordinator, CancellationTokenSource>.Accessor _cancellationTokenSource
+            = FieldAccessor<MultiplayerModeSelectionFlowCoordinator, CancellationTokenSource>.GetAccessor(nameof(_cancellationTokenSource));
+
         private FloatingScreen _screen = null!;
 
-        private readonly MultiplayerModeSelectionFlowCoordinator _modeSelectionFlow;
+        private MultiplayerModeSelectionFlowCoordinator _modeSelectionFlow;
         private readonly JoiningLobbyViewController _joiningLobbyView;
         private readonly NetworkConfigPatcher _networkConfig;
         private readonly ServerDetailsRegistry _serverRegistry;
@@ -101,6 +105,7 @@ namespace BeatTogether.UI
             SyncTemporarySelectedServer();
 
             SetInteraction(false);
+            //_cancellationTokenSource(ref _modeSelectionFlow) = new CancellationTokenSource();
             _didDeactivate(_modeSelectionFlow, false, false);
             _didActivate(_modeSelectionFlow, false, true, false);
             _replaceTopScreenViewController(_modeSelectionFlow, _joiningLobbyView, HandleTransitionFinished,
@@ -197,7 +202,7 @@ namespace BeatTogether.UI
             ViewController.AnimationType animationType)
         {
             if (oldViewController is MultiplayerModeSelectionViewController)
-                SetInteraction(newViewController is JoiningLobbyViewController);
+                SetInteraction(false);
             if (newViewController is MultiplayerModeSelectionViewController)
                 SetInteraction(true);
             if (newViewController is JoiningLobbyViewController && animationType == ViewController.AnimationType.None)
@@ -217,10 +222,12 @@ namespace BeatTogether.UI
 
         [AffinityPrefix]
         [AffinityPatch(typeof(FlowCoordinator), "SetTitle")]
-        private void SetTitle(ref string value)
+        private void SetTitle(ref string value, ref string ____title)
         {
             if (value == Localization.Get("LABEL_CHECKING_SERVER_STATUS"))
                 value = Localization.Get("LABEL_MULTIPLAYER_MODE_SELECTION");
+            if (____title == Localization.Get("LABEL_CHECKING_SERVER_STATUS") && value == "")
+                SetInteraction(true);
         }
 
         private bool _interactable = true;
