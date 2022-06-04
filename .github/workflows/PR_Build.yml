@@ -1,0 +1,45 @@
+name: Pull Request Build
+
+on:
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'BeatTogether.sln'
+      - 'BeatTogether/**'
+      - '.github/workflows/PR_Build.yml'
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup dotnet
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Fetch SIRA References
+      uses: ProjectSIRA/download-sira-stripped@1.0.0
+      with:
+        manifest: ./BeatTogether/manifest.json
+        sira-server-code: ${{ secrets.SIRA_SERVER_CODE }}
+    - name: Fetch Mod References
+      uses: Goobwabber/download-beatmods-deps@1.1
+      with:
+        manifest: ./BeatTogether/manifest.json
+    - name: Build
+      id: Build
+      env: 
+        FrameworkPathOverride: /usr/lib/mono/4.8-api
+      run: dotnet build --configuration Release
+    - name: GitStatus
+      run: git status
+    - name: Echo Filename
+      run: echo $BUILDTEXT \($ASSEMBLYNAME\)
+      env:
+        BUILDTEXT: Filename=${{ steps.Build.outputs.filename }}
+        ASSEMBLYNAME: AssemblyName=${{ steps.Build.outputs.assemblyname }}
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ steps.Build.outputs.filename }}
+        path: ${{ steps.Build.outputs.artifactpath }}

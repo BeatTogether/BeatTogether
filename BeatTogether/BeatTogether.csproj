@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <AssemblyName>BeatTogether</AssemblyName>
+        <AssemblyVersion>2.0.0</AssemblyVersion>
+        <TargetFramework>net472</TargetFramework>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>portable</DebugType>
+        <LocalRefsDir Condition="Exists('..\Refs')">..\Refs</LocalRefsDir>
+        <BeatSaberDir>$(LocalRefsDir)</BeatSaberDir>
+    <!--<PathMap>$(AppOutputBase)=X:\$(AssemblyName)\</PathMap>-->
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <LangVersion>9.0</LangVersion>
+        <Nullable>enable</Nullable>
+        <VersionType>Unofficial</VersionType>
+        <CommitHash>local</CommitHash>
+        <GitBranch></GitBranch>
+        <GitModified></GitModified>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <Optimize>false</Optimize>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <Optimize>true</Optimize>
+    </PropertyGroup>
+    <PropertyGroup Condition="$(DefineConstants.Contains('CIBuild')) OR '$(NCrunch)' == '1'">
+        <DisableCopyToPlugins>True</DisableCopyToPlugins>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(NCrunch)' == '1'">
+        <DisableCopyToPlugins>True</DisableCopyToPlugins>
+        <DisableZipRelease>True</DisableZipRelease>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Remove="UI\ServerSelectionController.bsml" />
+    </ItemGroup>
+    <ItemGroup>
+        <Reference Include="0Harmony">
+            <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="BGNet">
+            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\BGNet.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="BSML, Version=1.4.2.0, Culture=neutral, processorArchitecture=MSIL">
+            <Private>False</Private>
+            <HintPath>$(BeatSaberDir)\Plugins\BSML.dll</HintPath>
+            <SpecificVersion>False</SpecificVersion>
+        </Reference>
+        <Reference Include="MultiplayerCore">
+          <HintPath>$(BeatSaberDir)\Plugins\MultiplayerCore.dll</HintPath>
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="Polyglot">
+          <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Polyglot.dll</HintPath>
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="SiraUtil, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+            <Private>False</Private>
+            <HintPath>$(BeatSaberDir)\Plugins\SiraUtil.dll</HintPath>
+            <SpecificVersion>False</SpecificVersion>
+        </Reference>
+        <Reference Include="System" />
+        <Reference Include="System.Core" />
+        <Reference Include="System.Data" />
+        <Reference Include="Main">
+            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Main.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+		<Reference Include="HMLib">
+			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMLib.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="HMUI">
+			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\HMUI.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+        <Reference Include="IPA.Loader">
+            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\IPA.Loader.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+		<Reference Include="UnityEngine">
+			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine.CoreModule">
+			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+		<Reference Include="UnityEngine.UI">
+		  <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\UnityEngine.UI.dll</HintPath>
+		  <Private>False</Private>
+		</Reference>
+        <Reference Include="Zenject">
+            <HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+		<Reference Include="Zenject-usage">
+			<HintPath>$(BeatSaberDir)\Beat Saber_Data\Managed\Zenject-usage.dll</HintPath>
+			<Private>False</Private>
+		</Reference>
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="manifest.json" />
+        <EmbeddedResource Include="UI\ServerSelectionController.bsml" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="Directory.Build.props" Condition="Exists('Directory.Build.props')" />
+        <None Include="Directory.Build.targets" Condition="Exists('Directory.Build.targets')" />
+        <None Include="BeatTogether.csproj.user" Condition="Exists('BeatTogether.csproj.user')" />
+    </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="BeatSaberModdingTools.Tasks" Version="1.4.3">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+    </ItemGroup>
+    <Target Name="PreBuild" BeforeTargets="BeforeBuild" Condition="'$(NCRUNCH)' != '1'">
+        <Error Text="The BeatSaberModdingTools.Tasks nuget package doesn't seem to be installed." Condition="'$(BSMTTaskAssembly)' == ''" />
+        <GetCommitInfo ProjectDir="$(ProjectDir)">
+            <Output TaskParameter="CommitHash" PropertyName="CommitHash" />
+            <Output TaskParameter="Branch" PropertyName="GitBranch" />
+            <Output TaskParameter="IsPullRequest" PropertyName="IsPullRequest" />
+            <Output TaskParameter="Modified" PropertyName="GitModified" />
+            <Output TaskParameter="GitUser" PropertyName="GitUser" />
+        </GetCommitInfo>
+        <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true' AND '$(GitUser)' == 'Pythonology' AND '$(IsPullRequest)' != 'true'">
+            <VersionType>Official</VersionType>
+        </PropertyGroup>
+        <PropertyGroup Condition="'$(GitModified)' != 'Modified'">
+            <InformationalVersion>$(VersionType)-$(GitBranch)-$(CommitHash)</InformationalVersion>
+        </PropertyGroup>
+        <PropertyGroup Condition="'$(GitModified)' == 'Modified'">
+            <InformationalVersion>$(VersionType)-$(GitBranch)-$(CommitHash)-$(GitModified)</InformationalVersion>
+        </PropertyGroup>
+        <Message Text="Version $(InformationalVersion)" Importance="high" />
+    </Target>
+</Project>
