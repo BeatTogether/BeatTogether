@@ -15,7 +15,7 @@ Want to support development and server costs? [Click Here](https://www.patreon.c
 These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mod Assistant.
 * BSIPA v4.1.4+
 * BeatSaberMarkupLanguage v1.6.6+
-* MultiplayerCore v1.0.0+
+* [MultiplayerCore v1.0.0+](https://github.com/Goobwabber/MultiplayerCore#installation)
 
 ## Installation
 
