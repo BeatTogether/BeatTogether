@@ -10,6 +10,13 @@ Want to support development and server costs? [Click Here](https://www.patreon.c
 * Crossplay between all compatible platforms
 * Custom songs between platforms
 * 10 Player lobbies
+
+## Requirements
+These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mod Assistant.
+* BSIPA v4.1.4+
+* BeatSaberMarkupLanguage v1.6.6+
+* MultiplayerCore v1.0.0+
+
 ## Installation
 
 **Recommended Install:**
