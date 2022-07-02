@@ -19,10 +19,6 @@ These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mo
 
 ## Installation
 
-**Recommended Install:**
-
-The easiest way to install is through [ModAssistant](https://github.com/Assistant/ModAssistant)!
-
 **Manual Install:**
 
 To install, Download the latest mod from our releases. [Click Here](https://github.com/BeatTogether/BeatTogether/releases)
