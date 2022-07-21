@@ -51,6 +51,7 @@ namespace BeatTogether.UI
         private readonly NetworkConfigPatcher _networkConfig;
         private readonly ServerDetailsRegistry _serverRegistry;
         private readonly SiraLog _logger;
+        private bool _isFirstActivation;
 
         [UIComponent("server-list")] private ListSetting _serverList = null!;
 
@@ -58,7 +59,7 @@ namespace BeatTogether.UI
         private ServerDetails _serverValue
         {
             get => _serverRegistry.SelectedServer;
-            set => ServerChanged(value);
+            set => ApplySelectedServer(value);
         }
 
         [UIValue("server-options")] private List<object> _serverOptions;
@@ -75,6 +76,7 @@ namespace BeatTogether.UI
             _networkConfig = networkConfig;
             _serverRegistry = serverRegistry;
             _logger = logger;
+            _isFirstActivation = true;
 
             _serverOptions = new(_serverRegistry.Servers);
         }
@@ -90,7 +92,9 @@ namespace BeatTogether.UI
             _screen.gameObject.SetActive(false);
         }
 
-        private void ServerChanged(ServerDetails server)
+        #region Server selection
+
+        private void ApplySelectedServer(ServerDetails server)
         {
             if (server is TemporaryServerDetails)
                 return;
@@ -108,59 +112,42 @@ namespace BeatTogether.UI
             //_cancellationTokenSource(ref _modeSelectionFlow) = new CancellationTokenSource();
             _didDeactivate(_modeSelectionFlow, false, false);
             _didActivate(_modeSelectionFlow, false, true, false);
-            _replaceTopScreenViewController(_modeSelectionFlow, _joiningLobbyView, HandleTransitionFinished,
+            _replaceTopScreenViewController(_modeSelectionFlow, _joiningLobbyView, () => { },
                 ViewController.AnimationType.None, ViewController.AnimationDirection.Vertical);
         }
-
-        private void HandleTransitionFinished()
-        {
-        }
-        //=> SetInteraction(true);
-
-        [AffinityPrefix]
-        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "DidActivate")]
-        private void DidActivate()
-        {
-            SyncSelectedServer();
-        }
-
+        
         private void SyncSelectedServer()
         {
-            var didChangeSelection = false;
-
+            ServerDetails selectedServer;
+            
             if (_networkConfig.MasterServerEndPoint is not null)
             {
                 // Master server is being patched by MpCore, sync our selection
-                var knownServer = _serverRegistry.Servers.FirstOrDefault(
-                    sd => sd.EndPoint?.Equals(_networkConfig.MasterServerEndPoint) ?? false
-                );
+                var knownServer = _serverRegistry.Servers.FirstOrDefault(serverDetails =>
+                    serverDetails.EndPoint?.Equals(_networkConfig.MasterServerEndPoint) ?? false);
 
-                if (knownServer != _serverRegistry.SelectedServer)
+                if (knownServer != null)
                 {
-                    _logger.Info("Changing server selection from patch sync!");
-                    _serverRegistry.SetSelectedServer(knownServer
-                                                      ?? new TemporaryServerDetails(_networkConfig.MasterServerEndPoint));
-                    didChangeSelection = true;
+                    // Selected server is in our config
+                    selectedServer = knownServer;
+                }
+                else
+                {
+                    // Selected server is not in our config, set temporary value
+                    _logger.Debug($"Setting temporary server details (MasterServerEndPoint={_networkConfig.MasterServerEndPoint})");
+                    selectedServer = new TemporaryServerDetails(_networkConfig.MasterServerEndPoint);
                 }
             }
             else
             {
-                // No one is patching the master server, restore our selected server from config
-                if (_serverRegistry.SelectedServer.IsOfficial)
-                    _networkConfig.UseOfficialServer();
-                else
-                    _networkConfig.UseMasterServer(_serverRegistry.SelectedServer.EndPoint!,
-                        _serverRegistry.SelectedServer.StatusUri, _serverRegistry.SelectedServer.MaxPartySize);
-            }
-            
-            // Sync UI
-            if (didChangeSelection)
-            {
-                SyncTemporarySelectedServer();
-                OnPropertyChanged(nameof(_serverValue)); // for BSML binding
+                selectedServer = _serverRegistry.OfficialServer;
             }
 
-            _screen.gameObject.SetActive(true);
+            _serverRegistry.SetSelectedServer(selectedServer);
+            
+            SyncTemporarySelectedServer();
+            
+            OnPropertyChanged(nameof(_serverValue)); // for BSML binding
         }
 
         private void SyncTemporarySelectedServer()
@@ -186,14 +173,40 @@ namespace BeatTogether.UI
             if (didChange)
                 OnPropertyChanged(nameof(_serverOptions)); // for BSML binding
         }
+        
+        #endregion
 
+        #region Affinity patches
+
+        [AffinityPrefix]
+        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "DidActivate")]
+        private void DidActivate()
+        {
+            if (_isFirstActivation)
+            {
+                // First activation: apply the currently selected server (from our config)
+                if (_serverRegistry.SelectedServer.IsOfficial)
+                    _networkConfig.UseOfficialServer();
+                else
+                    _networkConfig.UseMasterServer(_serverRegistry.SelectedServer.EndPoint!,
+                        _serverRegistry.SelectedServer.StatusUri, _serverRegistry.SelectedServer.MaxPartySize);
+                
+                _isFirstActivation = false;
+            }
+            else
+            {
+                // Secondary activation: server selection may have been externally modified, sync it now
+                SyncSelectedServer();    
+            }
+            
+            _screen.gameObject.SetActive(true);
+        }
+        
         [AffinityPrefix]
         [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "DidDeactivate")]
         private void DidDeactivate(bool removedFromHierarchy)
         {
             _screen.gameObject.SetActive(false);
-            if (removedFromHierarchy)
-                _networkConfig.UseOfficialServer();
         }
 
         [AffinityPrefix]
@@ -229,7 +242,11 @@ namespace BeatTogether.UI
             if (____title == Localization.Get("LABEL_CHECKING_SERVER_STATUS") && value == "")
                 SetInteraction(true);
         }
+        
+        #endregion
 
+        #region SetInteraction
+        
         private bool _interactable = true;
         private bool _globalInteraction = true;
 
@@ -246,6 +263,8 @@ namespace BeatTogether.UI
             _globalInteraction = value;
             _serverList.interactable = _interactable && _globalInteraction;
         }
+        
+        #endregion
 
         #region INotifyPropertyChanged
 
