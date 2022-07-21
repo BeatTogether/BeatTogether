@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using BeatTogether.Models;
 using IPA.Config.Stores.Attributes;
 using IPA.Config.Stores.Converters;
@@ -14,7 +15,7 @@ namespace BeatTogether
         public const string BeatTogetherServerName = "BeatTogether";
         public const string BeatTogetherHostName = "master.beattogether.systems";
         public const string BeatTogetherStatusUri = "http://master.beattogether.systems/status";
-        public const int BeatTogetherMaxPartySize = 10;
+        public const int BeatTogetherMaxPartySize = 100;
 
         public virtual string SelectedServer { get; set; } = BeatTogetherServerName;
 
@@ -23,15 +24,14 @@ namespace BeatTogether
 
         public virtual void OnReload()
         {
-            Servers.RemoveAll(server =>
-                server.ServerName == BeatTogetherServerName);
-            Servers.Insert(0, new ServerDetails
-            {
-                ServerName = BeatTogetherServerName,
-                HostName = BeatTogetherHostName,
-                StatusUri = BeatTogetherStatusUri,
-                MaxPartySize = BeatTogetherMaxPartySize
-            });
+            if (Servers.All(server => server.ServerName != BeatTogetherServerName))
+                Servers.Insert(0, new ServerDetails
+                {
+                    ServerName = BeatTogetherServerName,
+                    HostName = BeatTogetherHostName,
+                    StatusUri = BeatTogetherStatusUri,
+                    MaxPartySize = BeatTogetherMaxPartySize
+                });
         }
 
         public virtual void CopyFrom(Config other)
