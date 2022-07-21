@@ -13,11 +13,12 @@ namespace BeatTogether.Registries
             ?? Servers.FirstOrDefault(details => details.ServerName == Config.BeatTogetherServerName);
 
         public IReadOnlyList<ServerDetails> Servers
-            => _config.Servers.Concat(_servers).Append(_officialServer).ToList();
+            => _config.Servers.Concat(_servers).Append(OfficialServer).ToList();
 
         private readonly Config _config;
         private readonly List<ServerDetails> _servers = new();
-        private readonly ServerDetails _officialServer = new()
+        
+        public readonly ServerDetails OfficialServer = new()
         {
             ServerName = Config.OfficialServerName
         };
