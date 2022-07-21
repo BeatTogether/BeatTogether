@@ -4,7 +4,7 @@
         <OutputType>Library</OutputType>
         <AppDesignerFolder>Properties</AppDesignerFolder>
         <AssemblyName>BeatTogether</AssemblyName>
-        <AssemblyVersion>2.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.1</AssemblyVersion>
         <TargetFramework>net472</TargetFramework>
         <DebugSymbols>true</DebugSymbols>
         <DebugType>portable</DebugType>
