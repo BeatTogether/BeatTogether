@@ -21,7 +21,7 @@ These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mo
 
 **Recommended Install:**
 
-The easiest way to install is through [ModAssistant](https://github.com/Assistant/ModAssistant)! Use our manual instructions below for now!
+The easiest way to install is through [ModAssistant](https://github.com/Assistant/ModAssistant)! 
 
 **Manual Install:**
 
