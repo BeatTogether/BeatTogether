@@ -99,7 +99,7 @@ namespace BeatTogether.UI
             if (server is TemporaryServerDetails)
                 return;
             
-            _logger.Debug($"Server changed to '{server.ServerName}': '{server.HostName}:{server.Port}'");
+            _logger.Debug($"Server changed to '{server.ServerName}': '{server.ApiUrl}'");
             _serverRegistry.SetSelectedServer(server);
             if (server.IsOfficial)
                 _networkConfig.UseOfficialServer();

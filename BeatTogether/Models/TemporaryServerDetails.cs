@@ -6,15 +6,22 @@ namespace BeatTogether.Models
     {
         public TemporaryServerDetails(string apiUrl, int masterServerPort)
         {
-            var urlParsed = new Uri(apiUrl);
+            try
+            {
+                var urlParsed = new Uri(apiUrl);
 
-            ServerName = urlParsed.Host;
-            HostName = urlParsed.Host;
-            Port = masterServerPort;
+                ServerName = urlParsed.Host;
+                HostName = urlParsed.Host;
+            }
+            catch (UriFormatException)
+            {
+                ServerName = apiUrl;
+                HostName = apiUrl;
+            }
+            
+            ApiUrl = apiUrl;
             StatusUri = string.Empty;
             MaxPartySize = IsOfficial ? 5 : 128;
-            ApiPort = urlParsed.Port;
-            ApiSecure = urlParsed.Scheme.Equals("https", StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }

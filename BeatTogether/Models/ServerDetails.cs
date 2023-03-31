@@ -10,13 +10,13 @@ namespace BeatTogether.Models
         /// </summary>
         public string ServerName { get; set; } = string.Empty;
         /// <summary>
-        /// Hostname for master server and API url
+        /// Legacy hostname for master server (no longer used, except for automatic config migrations)
         /// </summary>
         public string HostName { get; set; } = string.Empty;
         /// <summary>
-        /// Port number for master/auth server
+        /// The multiplayer API url / graph url 
         /// </summary>
-        public int Port { get; set; } = 2328;
+        public string ApiUrl { get; set; } = string.Empty;
         /// <summary>
         /// Optional status check URL for the server
         /// </summary>
@@ -25,26 +25,7 @@ namespace BeatTogether.Models
         /// Max amount of players per instance 
         /// </summary>
         public int MaxPartySize { get; set; } = 5;
-        /// <summary>
-        /// HTTP port number for Graph API server
-        /// </summary>
-        public int ApiPort { get; set; } = 80;
-        /// <summary>
-        /// Whether Graph API requests should use HTTPS protocol
-        /// </summary>
-        public bool ApiSecure { get; set; } = false;
 
-        public DnsEndPoint? EndPoint => string.IsNullOrEmpty(ServerName) ? null : new(HostName, Port);
-
-        public string ApiUrl
-        {
-            get
-            {
-                var protocol = ApiSecure ? "https" : "http";
-                return $"{protocol}://{HostName}:{ApiPort}";
-            }
-        }
-        
         public bool IsOfficial => ServerName == Config.OfficialServerName;
 
         /// <summary>
@@ -53,23 +34,24 @@ namespace BeatTogether.Models
         /// </summary>
         public bool MatchesApiUrl(string? apiUrl)
         {
+            if (apiUrl == ApiUrl)
+                // Exact match
+                return true;
+            
             if (string.IsNullOrEmpty(apiUrl))
                 return false;
             
-            Console.WriteLine(apiUrl);
-
+            // Loose match
             try
             {
-                var urlParsed = new Uri(apiUrl);
+                var urlOurs = new Uri(ApiUrl);
+                var urlTheirs = new Uri(apiUrl);
                 
-                Console.WriteLine($"parsed.Host = {urlParsed.Host}");
-                Console.WriteLine($"parsed.Port = {urlParsed.Port}");
-                
-                return urlParsed.Host == HostName && urlParsed.Port == ApiPort;
+                return urlOurs.Host == urlTheirs.Host &&
+                       urlOurs.Port == urlTheirs.Port;
             }
-            catch (UriFormatException ex)
+            catch (UriFormatException)
             {
-                Console.WriteLine(ex.Message);
                 return false;
             }
         }
