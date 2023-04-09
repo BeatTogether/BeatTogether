@@ -134,9 +134,8 @@ namespace BeatTogether.UI
                 else
                 {
                     // Selected server is not in our config, set temporary value
-                    // TODO
-                    _logger.Error($"Server not in config // TODO // not supported right now");
-                    return;
+                    _logger.Debug($"Setting temporary server details (GraphUrl={_networkConfig.GraphUrl})");
+                    selectedServer = new TemporaryServerDetails(_networkConfig.GraphUrl!, _networkConfig.MasterServerStatusUrl);
                 }
             }
             else
