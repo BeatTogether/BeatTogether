@@ -12,10 +12,13 @@ Want to support development and server costs? [Click Here](https://www.patreon.c
 * 10 Player lobbies
 
 ## Requirements
-These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mod Assistant.
+This version supports Beat Saber 1.29+ with mods:
+
 * BSIPA v4.1.4+
 * BeatSaberMarkupLanguage v1.6.6+
-* [MultiplayerCore v1.0.0+](https://github.com/Goobwabber/MultiplayerCore#installation)
+* [MultiplayerCore v1.3.0+](https://github.com/Goobwabber/MultiplayerCore#installation)
+
+These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mod Assistant.
 
 ## Installation
 

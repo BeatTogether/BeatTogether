@@ -99,12 +99,12 @@ namespace BeatTogether.UI
             if (server is TemporaryServerDetails)
                 return;
             
-            _logger.Debug($"Server changed to '{server.ServerName}': '{server.HostName}:{server.Port}'");
+            _logger.Debug($"Server changed to '{server.ServerName}': '{server.ApiUrl}'");
             _serverRegistry.SetSelectedServer(server);
             if (server.IsOfficial)
                 _networkConfig.UseOfficialServer();
             else
-                _networkConfig.UseMasterServer(server.EndPoint!, server.StatusUri, server.MaxPartySize);
+                _networkConfig.UseCustomApiServer(server.ApiUrl, server.StatusUri, server.MaxPartySize);
 
             SyncTemporarySelectedServer();
 
@@ -120,11 +120,11 @@ namespace BeatTogether.UI
         {
             ServerDetails selectedServer;
             
-            if (_networkConfig.MasterServerEndPoint is not null)
+            if (_networkConfig.IsOverridingApi)
             {
                 // Master server is being patched by MpCore, sync our selection
                 var knownServer = _serverRegistry.Servers.FirstOrDefault(serverDetails =>
-                    serverDetails.EndPoint?.Equals(_networkConfig.MasterServerEndPoint) ?? false);
+                    serverDetails.MatchesApiUrl(_networkConfig.GraphUrl));
 
                 if (knownServer != null)
                 {
@@ -134,8 +134,8 @@ namespace BeatTogether.UI
                 else
                 {
                     // Selected server is not in our config, set temporary value
-                    _logger.Debug($"Setting temporary server details (MasterServerEndPoint={_networkConfig.MasterServerEndPoint})");
-                    selectedServer = new TemporaryServerDetails(_networkConfig.MasterServerEndPoint);
+                    _logger.Debug($"Setting temporary server details (GraphUrl={_networkConfig.GraphUrl})");
+                    selectedServer = new TemporaryServerDetails(_networkConfig.GraphUrl!, _networkConfig.MasterServerStatusUrl);
                 }
             }
             else
@@ -188,7 +188,7 @@ namespace BeatTogether.UI
                 if (_serverRegistry.SelectedServer.IsOfficial)
                     _networkConfig.UseOfficialServer();
                 else
-                    _networkConfig.UseMasterServer(_serverRegistry.SelectedServer.EndPoint!,
+                    _networkConfig.UseCustomApiServer(_serverRegistry.SelectedServer.ApiUrl,
                         _serverRegistry.SelectedServer.StatusUri, _serverRegistry.SelectedServer.MaxPartySize);
                 
                 _isFirstActivation = false;

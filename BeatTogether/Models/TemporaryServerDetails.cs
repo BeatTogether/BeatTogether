@@ -1,13 +1,26 @@
-﻿namespace BeatTogether.Models
+﻿using System;
+
+namespace BeatTogether.Models
 {
     public class TemporaryServerDetails : ServerDetails
     {
-        public TemporaryServerDetails(DnsEndPoint masterServerEndPoint)
+        public TemporaryServerDetails(string graphApiUrl, string? statusUrl)
         {
-            ServerName = masterServerEndPoint.hostName;
-            HostName = masterServerEndPoint.hostName;
-            Port = masterServerEndPoint.port;
-            StatusUri = string.Empty;
+            try
+            {
+                var urlParsed = new Uri(graphApiUrl);
+
+                ServerName = urlParsed.Host;
+                HostName = urlParsed.Host;
+            }
+            catch (UriFormatException)
+            {
+                ServerName = graphApiUrl;
+                HostName = graphApiUrl;
+            }
+            
+            ApiUrl = graphApiUrl;
+            StatusUri = statusUrl ?? graphApiUrl;
             MaxPartySize = IsOfficial ? 5 : 128;
         }
     }

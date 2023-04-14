@@ -12,26 +12,43 @@ namespace BeatTogether
         public const string OfficialServerName = "Official Servers";
 
         // BeatTogether master server config
+        public const int DefaultApiPort = 8989;
         public const string BeatTogetherServerName = "BeatTogether";
         public const string BeatTogetherHostName = "master.beattogether.systems";
+        public const string BeatTogetherApiUri = "http://master.beattogether.systems:8989";
         public const string BeatTogetherStatusUri = "http://master.beattogether.systems/status";
         public const int BeatTogetherMaxPartySize = 100;
 
         public virtual string SelectedServer { get; set; } = BeatTogetherServerName;
 
         [NonNullable, UseConverter(typeof(CollectionConverter<ServerDetails, List<ServerDetails?>>))]
-        public virtual List<ServerDetails> Servers { get; set; } = new List<ServerDetails>();
+        public virtual List<ServerDetails> Servers { get; set; } = new();
 
         public virtual void OnReload()
         {
-            if (Servers.All(server => server.ServerName != BeatTogetherServerName))
+            var haveBtServer = false;
+            
+            foreach (var server in Servers)
+            {
+                if (server.ServerName == BeatTogetherServerName)
+                    haveBtServer = true;
+                
+                // Try to auto migrate API URL if missing from older configs
+                if (string.IsNullOrEmpty(server.ApiUrl))
+                    server.ApiUrl = $"http://{server.HostName}:{DefaultApiPort}";
+            }
+
+            if (!haveBtServer)
+            {
                 Servers.Insert(0, new ServerDetails
                 {
                     ServerName = BeatTogetherServerName,
                     HostName = BeatTogetherHostName,
+                    ApiUrl = BeatTogetherApiUri,
                     StatusUri = BeatTogetherStatusUri,
                     MaxPartySize = BeatTogetherMaxPartySize
                 });
+            }
         }
 
         public virtual void CopyFrom(Config other)
