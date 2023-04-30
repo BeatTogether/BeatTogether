@@ -131,7 +131,7 @@
       <Output TaskParameter="Modified" PropertyName="GitModified" />
       <Output TaskParameter="GitUser" PropertyName="GitUser" />
     </GetCommitInfo>
-    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true' AND '$(GitUser)' == 'Pythonology' AND '$(IsPullRequest)' != 'true'">
+    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true' AND ('$(GitUser)' == 'BeatTogether' OR '$(GitUser)' == 'michael-r-elp' OR '$(GitUser)' == 'roydejong' OR '$(GitUser)' == 'Goobwabber') AND '$(IsPullRequest)' != 'true'">
       <VersionType>Official</VersionType>
     </PropertyGroup>
     <PropertyGroup Condition="'$(GitModified)' != 'Modified'">
