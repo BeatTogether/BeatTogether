@@ -196,12 +196,11 @@ namespace BeatTogether.UI
             else
             {
                 // Secondary activation: server selection may have been externally modified, sync it now
-                SyncSelectedServer();    
+                SyncSelectedServer();
+                _screen.gameObject.SetActive(true);
             }
-            
-            _screen.gameObject.SetActive(true);
         }
-        
+
         [AffinityPrefix]
         [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "DidDeactivate")]
         private void DidDeactivate(bool removedFromHierarchy)
@@ -214,9 +213,15 @@ namespace BeatTogether.UI
         private bool TopViewControllerWillChange(ViewController oldViewController, ViewController newViewController,
             ViewController.AnimationType animationType)
         {
+            Transform screenContainer = oldViewController != null ? oldViewController.transform.parent.parent : newViewController.transform.parent.parent;
+            Transform screenSystem = screenContainer.parent;
+            _screen.gameObject.transform.localScale = screenContainer.localScale * screenSystem.localScale.y;
+            _screen.transform.position = screenContainer.position + new Vector3(0, screenSystem.localScale.y * 1.15f, 0);
+            _screen.gameObject.SetActive(true);
+
             if (oldViewController is MultiplayerModeSelectionViewController)
                 SetInteraction(false);
-            if (newViewController is MultiplayerModeSelectionViewController)
+            if (newViewController is MultiplayerModeSelectionViewController || newViewController is ConnectionErrorDialogViewController)
                 SetInteraction(true);
             if (newViewController is JoiningLobbyViewController && animationType == ViewController.AnimationType.None)
                 return false;
