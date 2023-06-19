@@ -239,6 +239,16 @@ namespace BeatTogether.UI
         }
 
         [AffinityPrefix]
+        [AffinityPatch(typeof(MultiplayerUnavailableReasonMethods),
+                       nameof(MultiplayerUnavailableReasonMethods.TryGetMultiplayerUnavailableReason))]
+        private void TryGetMultiplayerUnavailableReason()
+        {
+            // Re-Enable interaction when the MultiplayerUnavailableReason method is called, which happens when the initial status check returns an error
+            if (_serverList.enabled)
+                SetInteraction(true);
+        }
+
+        [AffinityPrefix]
         [AffinityPatch(typeof(FlowCoordinator), "SetTitle")]
         private void SetTitle(ref string value, ref string ____title)
         {
