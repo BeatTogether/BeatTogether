@@ -3,7 +3,7 @@
   "id": "BeatTogether",
   "name": "BeatTogether",
   "author": "Goobwabber",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "description": "A multiplayer private server for the modding community. Supports crossplay between PC and Quest.",
   "gameVersion": "1.29.0",
   "dependsOn": {
