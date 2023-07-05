@@ -100,12 +100,9 @@ namespace BeatTogether.UI
                 return;
             
             _logger.Debug($"Server changed to '{server.ServerName}': '{server.ApiUrl}'");
+            
             _serverRegistry.SetSelectedServer(server);
-            if (server.IsOfficial)
-                _networkConfig.UseOfficialServer();
-            else
-                _networkConfig.UseCustomApiServer(server.ApiUrl, server.StatusUri, server.MaxPartySize);
-
+            ApplyNetworkConfig(server);
             SyncTemporarySelectedServer();
 
             SetInteraction(false);
@@ -114,6 +111,15 @@ namespace BeatTogether.UI
             _didActivate(_modeSelectionFlow, false, true, false);
             _replaceTopScreenViewController(_modeSelectionFlow, _joiningLobbyView, () => { },
                 ViewController.AnimationType.None, ViewController.AnimationDirection.Vertical);
+        }
+
+        private void ApplyNetworkConfig(ServerDetails server)
+        {
+            if (server.IsOfficial)
+                _networkConfig.UseOfficialServer();
+            else
+                _networkConfig.UseCustomApiServer(server.ApiUrl, server.StatusUri, server.MaxPartySize,
+                    null, server.DisableSsl);
         }
         
         private void SyncSelectedServer()
@@ -185,12 +191,7 @@ namespace BeatTogether.UI
             if (_isFirstActivation)
             {
                 // First activation: apply the currently selected server (from our config)
-                if (_serverRegistry.SelectedServer.IsOfficial)
-                    _networkConfig.UseOfficialServer();
-                else
-                    _networkConfig.UseCustomApiServer(_serverRegistry.SelectedServer.ApiUrl,
-                        _serverRegistry.SelectedServer.StatusUri, _serverRegistry.SelectedServer.MaxPartySize);
-                
+                ApplyNetworkConfig(_serverRegistry.SelectedServer);
                 _isFirstActivation = false;
             }
             else

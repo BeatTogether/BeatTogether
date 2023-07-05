@@ -25,6 +25,10 @@ namespace BeatTogether.Models
         /// Max amount of players per instance 
         /// </summary>
         public int MaxPartySize { get; set; } = 5;
+        /// <summary>
+        /// If set: disable SSL and certificate validation for all Ignorance/ENet client connections.
+        /// </summary>
+        public bool DisableSsl { get; set; } = true;
 
         public bool IsOfficial => ServerName == Config.OfficialServerName;
 
