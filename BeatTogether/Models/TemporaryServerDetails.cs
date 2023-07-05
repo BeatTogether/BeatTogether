@@ -22,6 +22,7 @@ namespace BeatTogether.Models
             ApiUrl = graphApiUrl;
             StatusUri = statusUrl ?? graphApiUrl;
             MaxPartySize = IsOfficial ? 5 : 128;
+            DisableSsl = true;
         }
     }
 }

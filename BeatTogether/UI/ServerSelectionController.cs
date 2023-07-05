@@ -20,6 +20,8 @@ using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 using System.Threading;
+using MultiplayerCore.Models;
+using MultiplayerCore.Repositories;
 
 namespace BeatTogether.UI
 {
@@ -49,6 +51,7 @@ namespace BeatTogether.UI
         private MultiplayerModeSelectionFlowCoordinator _modeSelectionFlow;
         private readonly JoiningLobbyViewController _joiningLobbyView;
         private readonly NetworkConfigPatcher _networkConfig;
+        private readonly MpStatusRepository _mpStatusRepository;
         private readonly ServerDetailsRegistry _serverRegistry;
         private readonly SiraLog _logger;
         private bool _isFirstActivation;
@@ -68,17 +71,21 @@ namespace BeatTogether.UI
             MultiplayerModeSelectionFlowCoordinator modeSelectionFlow,
             JoiningLobbyViewController joiningLobbyView,
             NetworkConfigPatcher networkConfig,
+            MpStatusRepository mpStatusRepository,
             ServerDetailsRegistry serverRegistry,
             SiraLog logger)
         {
             _modeSelectionFlow = modeSelectionFlow;
             _joiningLobbyView = joiningLobbyView;
             _networkConfig = networkConfig;
+            _mpStatusRepository = mpStatusRepository;
             _serverRegistry = serverRegistry;
             _logger = logger;
             _isFirstActivation = true;
 
             _serverOptions = new(_serverRegistry.Servers);
+            
+            _mpStatusRepository.statusUpdatedForUrlEvent += HandleMpStatusUpdateForUrl;
         }
 
         public void Initialize()
@@ -98,14 +105,14 @@ namespace BeatTogether.UI
         {
             if (server is TemporaryServerDetails)
                 return;
-            
-            _logger.Debug($"Server changed to '{server.ServerName}': '{server.ApiUrl}'");
-            _serverRegistry.SetSelectedServer(server);
-            if (server.IsOfficial)
-                _networkConfig.UseOfficialServer();
-            else
-                _networkConfig.UseCustomApiServer(server.ApiUrl, server.StatusUri, server.MaxPartySize);
 
+            if (_serverRegistry.SelectedServer != server)
+            {
+                _logger.Debug($"Server changed to '{server.ServerName}': '{server.ApiUrl}'");
+                _serverRegistry.SetSelectedServer(server);
+            }
+
+            ApplyNetworkConfig(server);
             SyncTemporarySelectedServer();
 
             SetInteraction(false);
@@ -149,6 +156,19 @@ namespace BeatTogether.UI
             
             OnPropertyChanged(nameof(_serverValue)); // for BSML binding
         }
+        
+        #endregion
+
+        #region Server config
+        
+        private void ApplyNetworkConfig(ServerDetails server)
+        {
+            if (server.IsOfficial)
+                _networkConfig.UseOfficialServer();
+            else
+                _networkConfig.UseCustomApiServer(server.ApiUrl, server.StatusUri, server.MaxPartySize,
+                    null, server.DisableSsl);
+        }
 
         private void SyncTemporarySelectedServer()
         {
@@ -173,7 +193,30 @@ namespace BeatTogether.UI
             if (didChange)
                 OnPropertyChanged(nameof(_serverOptions)); // for BSML binding
         }
-        
+
+        private void HandleMpStatusUpdateForUrl(string statusUrl, MpStatusData statusData)
+        {
+            // Automatically set disableSsl setting from mp status data
+            
+            var targetServers = _serverRegistry.Servers
+                .Where((server) => server.StatusUri.Equals(statusUrl));
+
+            foreach (var targetServer in targetServers)
+            {
+                var disableSsl = !statusData.useSsl;
+                
+                if (disableSsl == targetServer.DisableSsl)
+                    continue;
+                
+                _logger.Info($"Config update for \"{targetServer.ServerName}\": disableSsl={disableSsl}");
+                
+                targetServer.DisableSsl = disableSsl;
+                
+                if (_serverRegistry.SelectedServer == targetServer)
+                    ApplyNetworkConfig(targetServer);
+            }
+        }
+
         #endregion
 
         #region Affinity patches
@@ -185,12 +228,7 @@ namespace BeatTogether.UI
             if (_isFirstActivation)
             {
                 // First activation: apply the currently selected server (from our config)
-                if (_serverRegistry.SelectedServer.IsOfficial)
-                    _networkConfig.UseOfficialServer();
-                else
-                    _networkConfig.UseCustomApiServer(_serverRegistry.SelectedServer.ApiUrl,
-                        _serverRegistry.SelectedServer.StatusUri, _serverRegistry.SelectedServer.MaxPartySize);
-                
+                ApplyNetworkConfig(_serverRegistry.SelectedServer);
                 _isFirstActivation = false;
             }
             else
