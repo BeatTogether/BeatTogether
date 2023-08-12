@@ -12,7 +12,7 @@ Want to support development and server costs? [Click Here](https://www.patreon.c
 * 10 Player lobbies
 
 ## Requirements
-This version supports Beat Saber 1.29+ with mods:
+The current version of the mod supports Beat Saber version 1.29 or lower:
 
 * BSIPA v4.1.4+
 * BeatSaberMarkupLanguage v1.6.6+
