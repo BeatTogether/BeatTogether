@@ -7,7 +7,6 @@ using BeatTogether.Registries;
 using HMUI;
 using IPA.Utilities;
 using MultiplayerCore.Patchers;
-using Polyglot;
 using SiraUtil.Affinity;
 using SiraUtil.Logging;
 using System;
@@ -20,6 +19,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 using System.Threading;
+using BGLib.Polyglot;
 using MultiplayerCore.Models;
 using MultiplayerCore.Repositories;
 
@@ -222,7 +222,8 @@ namespace BeatTogether.UI
         #region Affinity patches
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "DidActivate")]
+        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator),
+            nameof(MultiplayerModeSelectionFlowCoordinator.DidActivate))]
         private void DidActivate()
         {
             if (_isFirstActivation)
@@ -240,14 +241,16 @@ namespace BeatTogether.UI
         }
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "DidDeactivate")]
+        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator),
+            nameof(MultiplayerModeSelectionFlowCoordinator.DidDeactivate))]
         private void DidDeactivate(bool removedFromHierarchy)
         {
             _screen.gameObject.SetActive(false);
         }
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "TopViewControllerWillChange")]
+        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator),
+            nameof(MultiplayerModeSelectionFlowCoordinator.TopViewControllerWillChange))]
         private bool TopViewControllerWillChange(ViewController oldViewController, ViewController newViewController,
             ViewController.AnimationType animationType)
         {
@@ -287,7 +290,7 @@ namespace BeatTogether.UI
         }
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(FlowCoordinator), "SetTitle")]
+        [AffinityPatch(typeof(FlowCoordinator), nameof(FlowCoordinator.SetTitle))]
         private void SetTitle(ref string value, ref string ____title)
         {
             if (value == Localization.Get("LABEL_CHECKING_SERVER_STATUS"))
