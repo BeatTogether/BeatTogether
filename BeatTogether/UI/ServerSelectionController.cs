@@ -114,8 +114,8 @@ namespace BeatTogether.UI
 
             ApplyNetworkConfig(server);
             SyncTemporarySelectedServer();
-
-            SetInteraction(false);
+            RefreshSwitchInteractable();
+            
             //_cancellationTokenSource(ref _modeSelectionFlow) = new CancellationTokenSource();
             _didDeactivate(_modeSelectionFlow, false, false);
             _didActivate(_modeSelectionFlow, false, true, false);
@@ -248,27 +248,22 @@ namespace BeatTogether.UI
             _screen.gameObject.SetActive(false);
         }
 
-        [AffinityPrefix]
+        [AffinityPostfix]
         [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator),
-            nameof(MultiplayerModeSelectionFlowCoordinator.TopViewControllerWillChange))]
-        private bool TopViewControllerWillChange(ViewController oldViewController, ViewController newViewController,
-            ViewController.AnimationType animationType)
+            nameof(MultiplayerModeSelectionFlowCoordinator.TransitionDidStart))]
+        private void TransitionDidStart()
         {
-            Transform screenContainer = oldViewController != null ? oldViewController.transform.parent.parent : newViewController.transform.parent.parent;
-            Transform screenSystem = screenContainer.parent;
-            _screen.gameObject.transform.localScale = screenContainer.localScale * screenSystem.localScale.y;
-            _screen.transform.position = screenContainer.position + new Vector3(0, screenSystem.localScale.y * 1.15f, 0);
-            _screen.gameObject.SetActive(true);
-
-            if (oldViewController is MultiplayerModeSelectionViewController)
-                SetInteraction(false);
-            if (newViewController is MultiplayerModeSelectionViewController || newViewController is ConnectionErrorDialogViewController)
-                SetInteraction(true);
-            if (newViewController is JoiningLobbyViewController && animationType == ViewController.AnimationType.None)
-                return false;
-            return true;
+            RefreshSwitchInteractable();
         }
 
+        [AffinityPostfix]
+        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator),
+            nameof(MultiplayerModeSelectionFlowCoordinator.TransitionDidFinish))]
+        private void TransitionDidFinish()
+        {
+            RefreshSwitchInteractable();
+        }
+        
         [AffinityPrefix]
         [AffinityPatch(typeof(ViewControllerTransitionHelpers),
             nameof(ViewControllerTransitionHelpers.DoPresentTransition))]
@@ -280,44 +275,60 @@ namespace BeatTogether.UI
         }
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(MultiplayerUnavailableReasonMethods),
-                       nameof(MultiplayerUnavailableReasonMethods.TryGetMultiplayerUnavailableReason))]
-        private void TryGetMultiplayerUnavailableReason()
+        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator),
+            nameof(MultiplayerModeSelectionFlowCoordinator.TopViewControllerWillChange))]
+        private bool TopViewControllerWillChange(ViewController oldViewController, ViewController newViewController,
+            ViewController.AnimationType animationType)
         {
-            // Re-Enable interaction when the MultiplayerUnavailableReason method is called, which happens when the initial status check returns an error
-            if (_serverList.enabled)
-                SetInteraction(true);
+            var screenContainer = oldViewController != null ? oldViewController.transform.parent.parent : newViewController.transform.parent.parent;
+            var screenSystem = screenContainer.parent;
+            
+            _screen.gameObject.transform.localScale = screenContainer.localScale * screenSystem.localScale.y;
+            _screen.transform.position = screenContainer.position + new Vector3(0, screenSystem.localScale.y * 1.15f, 0);
+            _screen.gameObject.SetActive(true);
+            
+            RefreshSwitchInteractable();
+            
+            if (newViewController is JoiningLobbyViewController && animationType == ViewController.AnimationType.None)
+                return false;
+            
+            return true;
         }
 
         [AffinityPrefix]
         [AffinityPatch(typeof(FlowCoordinator), nameof(FlowCoordinator.SetTitle))]
         private void SetTitle(ref string value, ref string ____title)
         {
+            // Keep "Multiplayer Mode Selection" as a title when the server status check is happening
+            // This makes it more obvious what is going on and it looks less goofy (duplicate text)
             if (value == Localization.Get("LABEL_CHECKING_SERVER_STATUS"))
                 value = Localization.Get("LABEL_MULTIPLAYER_MODE_SELECTION");
-            if (____title == Localization.Get("LABEL_CHECKING_SERVER_STATUS") && value == "")
-                SetInteraction(true);
         }
-        
+
         #endregion
 
         #region SetInteraction
         
-        private bool _interactable = true;
         private bool _globalInteraction = true;
 
-        private void SetInteraction(bool value)
+        private void RefreshSwitchInteractable()
         {
-            _interactable = value;
-            _serverList.interactable = _interactable && _globalInteraction;
+            if (_serverList == null)
+                return;
+
+            // Only allow interactions when the main view controller is active and not transitioning
+            var interactable = _globalInteraction
+                               && _modeSelectionFlow.topViewController is MultiplayerModeSelectionViewController
+                               && !_modeSelectionFlow.topViewController.isInTransition;
+            _serverList.interactable = interactable;
         }
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(FlowCoordinator), "SetGlobalUserInteraction")]
+        [AffinityPatch(typeof(FlowCoordinator), nameof(FlowCoordinator.SetGlobalUserInteraction))]
         private void SetGlobalUserInteraction(bool value)
         {
             _globalInteraction = value;
-            _serverList.interactable = _interactable && _globalInteraction;
+            RefreshSwitchInteractable();
         }
         
         #endregion
