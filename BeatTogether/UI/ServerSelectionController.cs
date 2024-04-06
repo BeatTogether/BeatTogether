@@ -29,26 +29,8 @@ namespace BeatTogether.UI
     {
         public const string ResourcePath = "BeatTogether.UI.ServerSelectionController.bsml";
 
-        private Action<FlowCoordinator, bool, bool, bool> _didActivate
-            = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, bool, bool, bool>>
-                .GetDelegate("DidActivate");
-
-        private Action<FlowCoordinator, bool, bool> _didDeactivate
-            = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, bool, bool>>
-                .GetDelegate("DidDeactivate");
-
-        private Action<FlowCoordinator, ViewController, Action, ViewController.AnimationType,
-            ViewController.AnimationDirection> _replaceTopScreenViewController
-            = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController, Action,
-                    ViewController.AnimationType, ViewController.AnimationDirection>>
-                .GetDelegate("ReplaceTopViewController");
-
-        private FieldAccessor<MultiplayerModeSelectionFlowCoordinator, CancellationTokenSource>.Accessor _cancellationTokenSource
-            = FieldAccessor<MultiplayerModeSelectionFlowCoordinator, CancellationTokenSource>.GetAccessor(nameof(_cancellationTokenSource));
-
         private FloatingScreen _screen = null!;
-
-        private MultiplayerModeSelectionFlowCoordinator _modeSelectionFlow;
+        private readonly MultiplayerModeSelectionFlowCoordinator _modeSelectionFlow;
         private readonly JoiningLobbyViewController _joiningLobbyView;
         private readonly NetworkConfigPatcher _networkConfig;
         private readonly MpStatusRepository _mpStatusRepository;
@@ -116,11 +98,10 @@ namespace BeatTogether.UI
             SyncTemporarySelectedServer();
             RefreshSwitchInteractable();
             
-            //_cancellationTokenSource(ref _modeSelectionFlow) = new CancellationTokenSource();
-            _didDeactivate(_modeSelectionFlow, false, false);
-            _didActivate(_modeSelectionFlow, false, true, false);
-            _replaceTopScreenViewController(_modeSelectionFlow, _joiningLobbyView, () => { },
-                ViewController.AnimationType.None, ViewController.AnimationDirection.Vertical);
+            _modeSelectionFlow.DidDeactivate(false, false);
+            _modeSelectionFlow.DidActivate(false, true, false);
+            _modeSelectionFlow.ReplaceTopViewController(_joiningLobbyView,
+                animationDirection: ViewController.AnimationDirection.Vertical);
         }
         
         private void SyncSelectedServer()
@@ -338,7 +319,7 @@ namespace BeatTogether.UI
         public event PropertyChangedEventHandler? PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
