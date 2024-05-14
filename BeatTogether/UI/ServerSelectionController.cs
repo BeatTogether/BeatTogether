@@ -37,6 +37,7 @@ namespace BeatTogether.UI
         private readonly ServerDetailsRegistry _serverRegistry;
         private readonly SiraLog _logger;
         private bool _isFirstActivation;
+        private uint _allowSelectionOnce;
 
         [UIComponent("server-list")] private ListSetting _serverList = null!;
 
@@ -87,12 +88,6 @@ namespace BeatTogether.UI
         {
             if (server is TemporaryServerDetails)
                 return;
-
-            if (_serverRegistry.SelectedServer != server)
-            {
-                _logger.Debug($"Server changed to '{server.ServerName}': '{server.ApiUrl}'");
-                _serverRegistry.SetSelectedServer(server);
-            }
 
             ApplyNetworkConfig(server);
             SyncTemporarySelectedServer();
@@ -177,16 +172,15 @@ namespace BeatTogether.UI
 
         private void HandleMpStatusUpdateForUrl(string statusUrl, MpStatusData statusData)
         {
-            // Automatically set disableSsl setting from mp status data
-            
-            var targetServers = _serverRegistry.Servers
+			// Automatically set disableSsl setting from mp status data            
+			var targetServers = _serverRegistry.Servers
                 .Where((server) => server.StatusUri.Equals(statusUrl));
 
             foreach (var targetServer in targetServers)
             {
-                var disableSsl = !statusData.useSsl;
-                
-                if (disableSsl == targetServer.DisableSsl)
+				var disableSsl = !statusData.useSsl;
+
+				if (disableSsl == targetServer.DisableSsl)
                     continue;
                 
                 _logger.Info($"Config update for \"{targetServer.ServerName}\": disableSsl={disableSsl}");
@@ -195,7 +189,7 @@ namespace BeatTogether.UI
                 
                 if (_serverRegistry.SelectedServer == targetServer)
                     ApplyNetworkConfig(targetServer);
-            }
+			}
         }
 
         #endregion
@@ -221,7 +215,14 @@ namespace BeatTogether.UI
             }
         }
 
-        [AffinityPrefix]
+        [AffinityPostfix]
+        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), nameof(MultiplayerModeSelectionFlowCoordinator.PresentMasterServerUnavailableErrorDialog))]
+        private void PresentMasterServerUnavailableErrorDialog()
+        {
+            _allowSelectionOnce = 2;
+		}
+
+		[AffinityPrefix]
         [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator),
             nameof(MultiplayerModeSelectionFlowCoordinator.DidDeactivate))]
         private void DidDeactivate(bool removedFromHierarchy)
@@ -301,7 +302,12 @@ namespace BeatTogether.UI
             var interactable = _globalInteraction
                                && _modeSelectionFlow.topViewController is MultiplayerModeSelectionViewController
                                && !_modeSelectionFlow.topViewController.isInTransition;
-            _serverList.interactable = interactable;
+
+            // This is kinda a stupid way to do this but since this triggers twice
+            // when the connection error dialog comes up I have to make sure
+            // I set interactable to true the second time this method gets run
+			_serverList.interactable = interactable || _allowSelectionOnce > 0;
+            _allowSelectionOnce -= 1;
         }
 
         [AffinityPrefix]
