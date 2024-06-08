@@ -303,11 +303,12 @@ namespace BeatTogether.UI
                                && _modeSelectionFlow.topViewController is MultiplayerModeSelectionViewController
                                && !_modeSelectionFlow.topViewController.isInTransition;
 
-            // This is kinda a stupid way to do this but since this triggers twice
-            // when the connection error dialog comes up I have to make sure
-            // I set interactable to true the second time this method gets run
-			_serverList.interactable = interactable || _allowSelectionOnce > 0;
-            _allowSelectionOnce -= 1;
+			// We have _allowSelectionOnce set to 2 and only enable the actual toggle
+            // the second time this runs as the first will be the status check and
+            // on the second time this runs
+			_serverList.interactable = interactable || _allowSelectionOnce == 1;
+            if (_allowSelectionOnce > 0)
+                _allowSelectionOnce -= 1;
         }
 
         [AffinityPrefix]
