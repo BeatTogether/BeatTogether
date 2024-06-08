@@ -305,7 +305,7 @@ namespace BeatTogether.UI
 
 			// We have _allowSelectionOnce set to 2 and only enable the actual toggle
             // the second time this runs as the first will be the status check and
-            // on the second time this runs
+            // on the second time this runs we'll have the actual error pop-up
 			_serverList.interactable = interactable || _allowSelectionOnce == 1;
             if (_allowSelectionOnce > 0)
                 _allowSelectionOnce -= 1;
