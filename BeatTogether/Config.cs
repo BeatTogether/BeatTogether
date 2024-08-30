@@ -46,7 +46,8 @@ namespace BeatTogether
                     HostName = BeatTogetherHostName,
                     ApiUrl = BeatTogetherApiUri,
                     StatusUri = BeatTogetherStatusUri,
-                    MaxPartySize = BeatTogetherMaxPartySize
+                    MaxPartySize = BeatTogetherMaxPartySize,
+                    DisableSsl = true
                 });
             }
         }

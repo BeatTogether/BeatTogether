@@ -7,7 +7,6 @@ using BeatTogether.Registries;
 using HMUI;
 using IPA.Utilities;
 using MultiplayerCore.Patchers;
-using Polyglot;
 using SiraUtil.Affinity;
 using SiraUtil.Logging;
 using System;
@@ -20,6 +19,9 @@ using JetBrains.Annotations;
 using UnityEngine;
 using Zenject;
 using System.Threading;
+using BGLib.Polyglot;
+using MultiplayerCore.Models;
+using MultiplayerCore.Repositories;
 
 namespace BeatTogether.UI
 {
@@ -27,31 +29,15 @@ namespace BeatTogether.UI
     {
         public const string ResourcePath = "BeatTogether.UI.ServerSelectionController.bsml";
 
-        private Action<FlowCoordinator, bool, bool, bool> _didActivate
-            = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, bool, bool, bool>>
-                .GetDelegate("DidActivate");
-
-        private Action<FlowCoordinator, bool, bool> _didDeactivate
-            = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, bool, bool>>
-                .GetDelegate("DidDeactivate");
-
-        private Action<FlowCoordinator, ViewController, Action, ViewController.AnimationType,
-            ViewController.AnimationDirection> _replaceTopScreenViewController
-            = MethodAccessor<FlowCoordinator, Action<FlowCoordinator, ViewController, Action,
-                    ViewController.AnimationType, ViewController.AnimationDirection>>
-                .GetDelegate("ReplaceTopViewController");
-
-        private FieldAccessor<MultiplayerModeSelectionFlowCoordinator, CancellationTokenSource>.Accessor _cancellationTokenSource
-            = FieldAccessor<MultiplayerModeSelectionFlowCoordinator, CancellationTokenSource>.GetAccessor(nameof(_cancellationTokenSource));
-
         private FloatingScreen _screen = null!;
-
-        private MultiplayerModeSelectionFlowCoordinator _modeSelectionFlow;
+        private readonly MultiplayerModeSelectionFlowCoordinator _modeSelectionFlow;
         private readonly JoiningLobbyViewController _joiningLobbyView;
         private readonly NetworkConfigPatcher _networkConfig;
+        private readonly MpStatusRepository _mpStatusRepository;
         private readonly ServerDetailsRegistry _serverRegistry;
         private readonly SiraLog _logger;
         private bool _isFirstActivation;
+        private uint _allowSelectionOnce;
 
         [UIComponent("server-list")] private ListSetting _serverList = null!;
 
@@ -68,17 +54,21 @@ namespace BeatTogether.UI
             MultiplayerModeSelectionFlowCoordinator modeSelectionFlow,
             JoiningLobbyViewController joiningLobbyView,
             NetworkConfigPatcher networkConfig,
+            MpStatusRepository mpStatusRepository,
             ServerDetailsRegistry serverRegistry,
             SiraLog logger)
         {
             _modeSelectionFlow = modeSelectionFlow;
             _joiningLobbyView = joiningLobbyView;
             _networkConfig = networkConfig;
+            _mpStatusRepository = mpStatusRepository;
             _serverRegistry = serverRegistry;
             _logger = logger;
             _isFirstActivation = true;
 
             _serverOptions = new(_serverRegistry.Servers);
+            
+            _mpStatusRepository.statusUpdatedForUrlEvent += HandleMpStatusUpdateForUrl;
         }
 
         public void Initialize()
@@ -98,22 +88,15 @@ namespace BeatTogether.UI
         {
             if (server is TemporaryServerDetails)
                 return;
-            
-            _logger.Debug($"Server changed to '{server.ServerName}': '{server.ApiUrl}'");
-            _serverRegistry.SetSelectedServer(server);
-            if (server.IsOfficial)
-                _networkConfig.UseOfficialServer();
-            else
-                _networkConfig.UseCustomApiServer(server.ApiUrl, server.StatusUri, server.MaxPartySize);
 
+            ApplyNetworkConfig(server);
             SyncTemporarySelectedServer();
-
-            SetInteraction(false);
-            //_cancellationTokenSource(ref _modeSelectionFlow) = new CancellationTokenSource();
-            _didDeactivate(_modeSelectionFlow, false, false);
-            _didActivate(_modeSelectionFlow, false, true, false);
-            _replaceTopScreenViewController(_modeSelectionFlow, _joiningLobbyView, () => { },
-                ViewController.AnimationType.None, ViewController.AnimationDirection.Vertical);
+            RefreshSwitchInteractable();
+            
+            _modeSelectionFlow.DidDeactivate(false, false);
+            _modeSelectionFlow.DidActivate(false, true, false);
+            _modeSelectionFlow.ReplaceTopViewController(_joiningLobbyView,
+                animationDirection: ViewController.AnimationDirection.Vertical);
         }
         
         private void SyncSelectedServer()
@@ -149,6 +132,19 @@ namespace BeatTogether.UI
             
             OnPropertyChanged(nameof(_serverValue)); // for BSML binding
         }
+        
+        #endregion
+
+        #region Server config
+        
+        private void ApplyNetworkConfig(ServerDetails server)
+        {
+            if (server.IsOfficial)
+                _networkConfig.UseOfficialServer();
+            else
+                _networkConfig.UseCustomApiServer(server.ApiUrl, server.StatusUri, server.MaxPartySize,
+                    null, server.DisableSsl);
+        }
 
         private void SyncTemporarySelectedServer()
         {
@@ -173,24 +169,42 @@ namespace BeatTogether.UI
             if (didChange)
                 OnPropertyChanged(nameof(_serverOptions)); // for BSML binding
         }
-        
+
+        private void HandleMpStatusUpdateForUrl(string statusUrl, MpStatusData statusData)
+        {
+			// Automatically set disableSsl setting from mp status data            
+			var targetServers = _serverRegistry.Servers
+                .Where((server) => server.StatusUri.Equals(statusUrl));
+
+            foreach (var targetServer in targetServers)
+            {
+				var disableSsl = !statusData.useSsl;
+
+				if (disableSsl == targetServer.DisableSsl)
+                    continue;
+                
+                _logger.Info($"Config update for \"{targetServer.ServerName}\": disableSsl={disableSsl}");
+                
+                targetServer.DisableSsl = disableSsl;
+                
+                if (_serverRegistry.SelectedServer == targetServer)
+                    ApplyNetworkConfig(targetServer);
+			}
+        }
+
         #endregion
 
         #region Affinity patches
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "DidActivate")]
+        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator),
+            nameof(MultiplayerModeSelectionFlowCoordinator.DidActivate))]
         private void DidActivate()
         {
             if (_isFirstActivation)
             {
                 // First activation: apply the currently selected server (from our config)
-                if (_serverRegistry.SelectedServer.IsOfficial)
-                    _networkConfig.UseOfficialServer();
-                else
-                    _networkConfig.UseCustomApiServer(_serverRegistry.SelectedServer.ApiUrl,
-                        _serverRegistry.SelectedServer.StatusUri, _serverRegistry.SelectedServer.MaxPartySize);
-                
+                ApplyNetworkConfig(_serverRegistry.SelectedServer);
                 _isFirstActivation = false;
             }
             else
@@ -201,33 +215,37 @@ namespace BeatTogether.UI
             }
         }
 
-        [AffinityPrefix]
-        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "DidDeactivate")]
+        [AffinityPostfix]
+        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), nameof(MultiplayerModeSelectionFlowCoordinator.PresentMasterServerUnavailableErrorDialog))]
+        private void PresentMasterServerUnavailableErrorDialog()
+        {
+            _allowSelectionOnce = 2;
+		}
+
+		[AffinityPrefix]
+        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator),
+            nameof(MultiplayerModeSelectionFlowCoordinator.DidDeactivate))]
         private void DidDeactivate(bool removedFromHierarchy)
         {
             _screen.gameObject.SetActive(false);
         }
 
-        [AffinityPrefix]
-        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator), "TopViewControllerWillChange")]
-        private bool TopViewControllerWillChange(ViewController oldViewController, ViewController newViewController,
-            ViewController.AnimationType animationType)
+        [AffinityPostfix]
+        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator),
+            nameof(MultiplayerModeSelectionFlowCoordinator.TransitionDidStart))]
+        private void TransitionDidStart()
         {
-            Transform screenContainer = oldViewController != null ? oldViewController.transform.parent.parent : newViewController.transform.parent.parent;
-            Transform screenSystem = screenContainer.parent;
-            _screen.gameObject.transform.localScale = screenContainer.localScale * screenSystem.localScale.y;
-            _screen.transform.position = screenContainer.position + new Vector3(0, screenSystem.localScale.y * 1.15f, 0);
-            _screen.gameObject.SetActive(true);
-
-            if (oldViewController is MultiplayerModeSelectionViewController)
-                SetInteraction(false);
-            if (newViewController is MultiplayerModeSelectionViewController || newViewController is ConnectionErrorDialogViewController)
-                SetInteraction(true);
-            if (newViewController is JoiningLobbyViewController && animationType == ViewController.AnimationType.None)
-                return false;
-            return true;
+            RefreshSwitchInteractable();
         }
 
+        [AffinityPostfix]
+        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator),
+            nameof(MultiplayerModeSelectionFlowCoordinator.TransitionDidFinish))]
+        private void TransitionDidFinish()
+        {
+            RefreshSwitchInteractable();
+        }
+        
         [AffinityPrefix]
         [AffinityPatch(typeof(ViewControllerTransitionHelpers),
             nameof(ViewControllerTransitionHelpers.DoPresentTransition))]
@@ -239,44 +257,66 @@ namespace BeatTogether.UI
         }
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(MultiplayerUnavailableReasonMethods),
-                       nameof(MultiplayerUnavailableReasonMethods.TryGetMultiplayerUnavailableReason))]
-        private void TryGetMultiplayerUnavailableReason()
+        [AffinityPatch(typeof(MultiplayerModeSelectionFlowCoordinator),
+            nameof(MultiplayerModeSelectionFlowCoordinator.TopViewControllerWillChange))]
+        private bool TopViewControllerWillChange(ViewController oldViewController, ViewController newViewController,
+            ViewController.AnimationType animationType)
         {
-            // Re-Enable interaction when the MultiplayerUnavailableReason method is called, which happens when the initial status check returns an error
-            if (_serverList.enabled)
-                SetInteraction(true);
+            var screenContainer = oldViewController != null ? oldViewController.transform.parent.parent : newViewController.transform.parent.parent;
+            var screenSystem = screenContainer.parent;
+            
+            _screen.gameObject.transform.localScale = screenContainer.localScale * screenSystem.localScale.y;
+            _screen.transform.position = screenContainer.position + new Vector3(0, screenSystem.localScale.y * 1.15f, 0);
+            _screen.gameObject.SetActive(true);
+            
+            RefreshSwitchInteractable();
+            
+            if (newViewController is JoiningLobbyViewController && animationType == ViewController.AnimationType.None)
+                return false;
+            
+            return true;
         }
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(FlowCoordinator), "SetTitle")]
+        [AffinityPatch(typeof(FlowCoordinator), nameof(FlowCoordinator.SetTitle))]
         private void SetTitle(ref string value, ref string ____title)
         {
+            // Keep "Multiplayer Mode Selection" as a title when the server status check is happening
+            // This makes it more obvious what is going on and it looks less goofy (duplicate text)
             if (value == Localization.Get("LABEL_CHECKING_SERVER_STATUS"))
                 value = Localization.Get("LABEL_MULTIPLAYER_MODE_SELECTION");
-            if (____title == Localization.Get("LABEL_CHECKING_SERVER_STATUS") && value == "")
-                SetInteraction(true);
         }
-        
+
         #endregion
 
         #region SetInteraction
         
-        private bool _interactable = true;
         private bool _globalInteraction = true;
 
-        private void SetInteraction(bool value)
+        private void RefreshSwitchInteractable()
         {
-            _interactable = value;
-            _serverList.interactable = _interactable && _globalInteraction;
+            if (_serverList == null)
+                return;
+
+            // Only allow interactions when the main view controller is active and not transitioning
+            var interactable = _globalInteraction
+                               && _modeSelectionFlow.topViewController is MultiplayerModeSelectionViewController
+                               && !_modeSelectionFlow.topViewController.isInTransition;
+
+			// We have _allowSelectionOnce set to 2 and only enable the actual toggle
+            // the second time this runs as the first will be the status check and
+            // on the second time this runs we'll have the actual error pop-up
+			_serverList.interactable = interactable || _allowSelectionOnce == 1;
+            if (_allowSelectionOnce > 0)
+                _allowSelectionOnce -= 1;
         }
 
         [AffinityPrefix]
-        [AffinityPatch(typeof(FlowCoordinator), "SetGlobalUserInteraction")]
+        [AffinityPatch(typeof(FlowCoordinator), nameof(FlowCoordinator.SetGlobalUserInteraction))]
         private void SetGlobalUserInteraction(bool value)
         {
             _globalInteraction = value;
-            _serverList.interactable = _interactable && _globalInteraction;
+            RefreshSwitchInteractable();
         }
         
         #endregion
@@ -286,7 +326,7 @@ namespace BeatTogether.UI
         public event PropertyChangedEventHandler? PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
