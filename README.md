@@ -18,7 +18,7 @@ This version supports Beat Saber 1.37.0+ with mods:
 * BeatSaberMarkupLanguage v1.11.4+
 * [MultiplayerCore v1.5.0+](https://github.com/Goobwabber/MultiplayerCore#installation)
 
-These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using [BSManager]([https://beatmods.com/#/mods](https://github.com/Zagrios/bs-manager?tab=readme-ov-file#download-and-installation)
+These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using [BSManager](https://github.com/Zagrios/bs-manager?tab=readme-ov-file#download-and-installation)
 
 ## Installation
 
