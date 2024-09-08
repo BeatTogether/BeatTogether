@@ -12,21 +12,21 @@ Want to support development and server costs? [Click Here](https://www.patreon.c
 * 10 Player lobbies
 
 ## Requirements
-This version supports Beat Saber 1.29+ with mods:
+This version supports Beat Saber 1.37.0+ with mods:
 
-* BSIPA v4.1.4+
-* BeatSaberMarkupLanguage v1.6.6+
-* [MultiplayerCore v1.3.0+](https://github.com/Goobwabber/MultiplayerCore#installation)
+* BSIPA v4.1.5+
+* BeatSaberMarkupLanguage v1.11.4+
+* [MultiplayerCore v1.5.0+](https://github.com/Goobwabber/MultiplayerCore#installation)
 
-These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using Mod Assistant.
+These can be downloaded from [BeatMods](https://beatmods.com/#/mods) or using [BSManager]([https://beatmods.com/#/mods](https://github.com/Zagrios/bs-manager?tab=readme-ov-file#download-and-installation
 
 ## Installation
 
 **Recommended Install:**
 
-The easiest way to install is through [ModAssistant](https://github.com/Assistant/ModAssistant)! 
+The easiest way to install is through [BSManager](https://github.com/Zagrios/bs-manager?tab=readme-ov-file#download-and-installation)! (Only available for 1.37.3)
 
-**Manual Install:**
+**Manual Install (For any other version than 1.37.3)**
 
 To install, Download the latest mod from our releases. [Click Here](https://github.com/BeatTogether/BeatTogether/releases)
 
