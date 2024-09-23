@@ -4,7 +4,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>BeatTogether</AssemblyName>
-    <AssemblyVersion>2.1.2</AssemblyVersion>
+    <AssemblyVersion>2.2.1</AssemblyVersion>
     <TargetFramework>net472</TargetFramework>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
@@ -43,6 +43,9 @@
     <Reference Include="0Harmony">
       <HintPath>$(BeatSaberDir)\Libs\0Harmony.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="BeatSaber.ViewSystem" Publicize="true">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Beat Saber\Beat Saber_Data\Managed\BeatSaber.ViewSystem.dll</HintPath>
     </Reference>
     <Reference Include="BSML, Version=1.4.2.0, Culture=neutral, processorArchitecture=MSIL">
       <Private>False</Private>
