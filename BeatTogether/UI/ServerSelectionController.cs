@@ -75,7 +75,7 @@ namespace BeatTogether.UI
         {
             _screen = FloatingScreen.CreateFloatingScreen(new Vector2(90, 90), false, new Vector3(0, 3f, 4.35f),
                 new Quaternion(0, 0, 0, 0));
-            BSMLParser.instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), ResourcePath),
+            BSMLParser.Instance.Parse(Utilities.GetResourceContent(Assembly.GetExecutingAssembly(), ResourcePath),
                 _screen.gameObject, this);
             (_serverList.gameObject.transform.GetChild(1) as RectTransform)!.sizeDelta = new Vector2(60, 0);
             _screen.GetComponent<CurvedCanvasSettings>().SetRadius(140);
@@ -306,7 +306,7 @@ namespace BeatTogether.UI
 			// We have _allowSelectionOnce set to 2 and only enable the actual toggle
             // the second time this runs as the first will be the status check and
             // on the second time this runs we'll have the actual error pop-up
-			_serverList.interactable = interactable || _allowSelectionOnce == 1;
+			_serverList.Interactable = interactable || _allowSelectionOnce == 1;
             if (_allowSelectionOnce > 0)
                 _allowSelectionOnce -= 1;
         }
